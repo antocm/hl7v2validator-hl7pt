@@ -1,0 +1,38 @@
+
+  description: "endpoint for receiving a HL7 V2 message and returning a csv with the structure of the message"
+  consumes:
+    - "application/json"
+  produces:
+    - "text/csv"
+  parameters:
+    - in: "body"
+      name: "body"
+      description: "Message that needs to be validated"
+      required: true
+      schema:
+        $ref: "#/definitions/messageData"
+  responses:
+    404:
+      description: "No File Found"
+    200:
+      description: "successful operation"
+      examples:
+        text/csv: |
+          field,message
+          MSH_1 (FIELD_SEPARATOR),|
+          MSH_2 (ENCODING_CHARACTERS),^~\&
+          MSH_3 (SENDING_APPLICATION),APOLLO_HCIS
+          MSH_4 (SENDING_FACILITY),HCIS
+          MSH_5 (RECEIVING_APPLICATION),GH
+          MSH_6 (RECEIVING_FACILITY),HCIS
+  definitions:
+    messageData:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          type: "string"
+
+
+

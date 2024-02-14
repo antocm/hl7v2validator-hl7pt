@@ -1,0 +1,8 @@
+Flask
+hl7apy
+requests
+
+gunicorn
+
+flasgger
+pandas

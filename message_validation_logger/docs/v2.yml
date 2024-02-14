@@ -1,0 +1,26 @@
+
+  description: "endpoint for receving a HL7v2 and returning a validation state while logging within HS.HELIOS"
+  consumes:
+    - "application/json"
+  produces:
+    - "application/json"
+  parameters:
+    - in: "body"
+      name: "body"
+      description: "Message that needs to be validated"
+      required: true
+      schema:
+        $ref: "#/definitions/messageData"
+  responses:
+    404:
+      description: "No Content"
+  definitions:
+    messageData:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          type: "string"
+
+

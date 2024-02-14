@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>HL7 Validator</title>
+    <link href="/static/bootstrap.min.css" rel="stylesheet" media="screen">
+</head>
+
+<body>
+<div class="container">
+    <div class="row align-items-center">
+        <div class="col-2">
+            <img style="float:left; width:70%;" src="/static/hl7pt.png" class="rounded float-left" alt="HL7PT">
+        </div>
+        <div class="col-10">
+            <h1>HL7 V2 Validation Tool</h1>
+        </div>
+
+    </div>
+
+    <form method="POST" role="form">
+        <div class="form-group">
+            <label for="exampleFormControlTextarea1">
+                <h3>Use this form to validate your HL7 content</h3>
+            </label>
+
+            <div class="row align-items-center">
+                <div class="col-lg-2 "><label class="radio-inline"><input type="radio" name="options" value="hl7v2"
+                                                                          checked> HL7
+                    V2</label></div>
+               
+                <div class="col-lg-3">
+                    <label class="radio-inline"><input type="radio" name="options" value="converter"> HL7 V2 Converter
+                        to CSV</label>
+                </div>
+            </div>
+            <textarea class="form-control" id="exampleFormControlTextarea1" name="msg" rows="5"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <br>
+    {% if msg %}
+    <h2>{{ msg }}</h2>
+    {% endif %}
+
+    {% if result %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+
+            <th scope="col">Level</th>
+            <th scope="col">Message</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        {% for foo in result %}
+        <tr>
+            <th scope="row">{{foo["index"]}}</th>
+            <td>{{ foo["level"] }}</td>
+            <td>{{ foo["message"] }}</td>
+
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+</body>
+<footer>
+    <div class="container">
+        <div class="col-2 offset-10">
+            <p style="text-align: left">
+                Release Version: {{version}}
+            </p></div>
+    </div>
+</footer>
+</html>
