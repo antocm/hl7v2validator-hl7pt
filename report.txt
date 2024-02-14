@@ -1,6 +1,10 @@
+Error: Invalid children detected for <Field PID_13 (PHONE_NUMBER_HOME) of type XTN>: [None]
 Error: Missing required child ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION
 Error: Missing required child ORU_R01_PATIENT.PID
 Error: Missing required child ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION
+Error: Invalid children detected for <Segment ORC>: [None]
+Error: Missing required child ORU_R01_ORDER_OBSERVATION.OBR
+Error: Missing required child ORU_R01_ORDER_OBSERVATION.ORU_R01_OBSERVATION
 Error: Datatype None is not correct for OBR_44.CE_1 (it must be None)
 Warning: Value NS not in table HL70203 in element PID_3.CX_5
 Warning: Value SNS not in table HL70203 in element PID_3.CX_5
@@ -8,7 +12,3 @@ Warning: Value SNS not in table HL70203 in element PID_3.CX_5
 Warning: Value NIF not in table HL70203 in element PID_3.CX_5
 Warning: Value INT not in table HL70004 in element PV1.PV1_2
 Warning: Value 20 not in table HL70023 in element PV1.PV1_14
-Warning: Value HL70339 not in table HL70396 in element ORC_20.CE_3
-Warning: Value HOS not in table HL70396 in element OBR_4.CE_3
-Warning: Value LOINC not in table HL70396 in element OBR_4.CE_6
-Warning: Value HL70485 not in table HL70396 in element TQ1_9.CWE_3

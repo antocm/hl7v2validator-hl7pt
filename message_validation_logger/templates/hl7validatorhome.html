@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>HL7 Validator</title>
     <link href="/static/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="/static/mystyle.css" rel="stylesheet" media="screen">
+
 </head>
 
 <body>
@@ -57,9 +59,9 @@
         </thead>
         <tbody>
         {% for foo in result %}
-        <tr>
+        <tr >
             <th scope="row">{{foo["index"]}}</th>
-            <td>{{ foo["level"] }}</td>
+            <td class="{{foo["level"]}}level">{{ foo["level"] }}</td>
             <td>{{ foo["message"] }}</td>
 
         </tr>

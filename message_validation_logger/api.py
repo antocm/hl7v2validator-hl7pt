@@ -99,86 +99,13 @@ def set_message_to_validate(msg):
         return msg
 
 
-def hl7validatorapi(msg):
-    app.logger.info("message received in hl7validatorapi: {}".format(msg))
-    resultmessage = resultMessage()
-    custom_chars = define_custom_chars(msg)
-    hl7version = "2.4"
-    details = []
-    if not msg:
-        abort(404)
-    error = False
-    setmsg = set_message_to_validate(msg)
-    try:
-        hl7version = parse_message(setmsg).version
-        msh_10 = parse_message(setmsg).msh.msh_10.value
-    except Exception as err:
-        app.logger.info(
-            "Strange error with message: {} ----> ERROR {}".format(msg, err)
-        )
-        resultmessage.statusCode = "Failed"
-        resultmessage.message = "Error parsing message"
-        return resultmessage.__dict__
-    try:
-        parse_message(setmsg).validate(report_file="report.txt")
-    except (ValidationError, AttributeError, InvalidName) as err:
-        if re.search("Missing required child \w{3}_", err.args[0]):
-            resultmessage.statusCode = "Failed"
-            resultmessage.message = "Message Not Valid"
-            resultmessage.details = [{"error": str(err.args[0])}]
-            return resultmessage.__dict__
-        else:
-            app.logger.info(
-                "Strange error with message: {} ----> ERROR {}".format(msg, err)
-            )
-            pass
-
-    try:
-        for index, n in enumerate(
-            parse_segments(msg, encoding_chars=custom_chars, version=hl7version)
-        ):
-            try:
-                n.validate()
-                if not error:
-                    resultmessage.statusCode = "Success"
-                    resultmessage.message = "Message Valid"
-                if n.name == "MSH":
-                    title = n.msh_9.msh_9_1.value + "^" + n.msh_9.msh_9_2.value
-
-            except Exception as err:
-                err_constructed = hl7construct_error(err)
-                error = True
-                details.append(
-                    {
-                        "index": str(index + 1),
-                        "segment": n.name,
-                        "error": err_constructed,
-                    }
-                )
-
-                errors = "error"
-                if len(details) > 1:
-                    errors = "errors"
-                resultmessage.statusCode = "Failed"
-                resultmessage.details = details
-                resultmessage.message = (
-                    "Message not valid with " + str(len(details)) + " " + errors
-                )
-
-    except Exception as err:
-        resultmessage.statusCode = "Failed"
-        resultmessage.message = "Error validating message"
-    app.logger.info("HL7 evaluation: {}".format(resultmessage.__dict__))
-    return resultmessage.__dict__
-
-
 def hl7validatorapi2(msg):
     app.logger.info("message received in hl7validatorapi: {}".format(msg))
     resultmessage = resultMessage()
     custom_chars = define_custom_chars(msg)
     details = []
     status = "Success"
-    message = "Message Valid"
+
     if not msg:
         abort(404)
     error = False
@@ -197,14 +124,14 @@ def hl7validatorapi2(msg):
         parse_message(setmsg).validate(report_file="report.txt")
     except:
         pass
-
+    message = "Message v" + hl7version + " Valid"
     # read result
 
     # Open the file (make sure to replace 'your_file.txt' with your actual file name)
     with open("report.txt", "r") as file:
         # Read and print each line
         for idx, line in enumerate(file):
-            level, message_level = line.split(":")
+            level, message_level = line.split(":", 1)
             if level == "Error":
                 error = True
             print(level, message_level)
@@ -217,7 +144,7 @@ def hl7validatorapi2(msg):
             )
             if error:
                 status = "Failed"
-                message = "Message not valid"
+                message = "Message v" + hl7version + " not valid"
             resultmessage.statusCode = status
             resultmessage.details = details
             resultmessage.message = message
