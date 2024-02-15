@@ -8,8 +8,8 @@ WORKDIR /app
 #COPY requirements.txt /app
 #RUN pip install -r requirements.txt
 
-RUN mkdir /app/message_validation_logger
-COPY message_validation_logger /app/message_validation_logger
+RUN mkdir /app/hl7validator
+COPY hl7validator /app/message_validatihl7validatoron_logger
 
 RUN python3 -m pip install pip --upgrade
 RUN python3 -m pip install --upgrade wheel setuptools

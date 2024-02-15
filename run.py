@@ -1,4 +1,4 @@
-from message_validation_logger import app
+from hl7validator import app
 import os
 import logging
 from logging.handlers import RotatingFileHandler

@@ -1,14 +1,11 @@
-from hl7apy.parser import parse_segments, parse_message
+from hl7apy.parser import parse_message
 from hl7apy import parser
 from hl7apy.exceptions import (
     UnsupportedVersion,
-    ChildNotFound,
-    ValidationError,
-    InvalidName,
 )
 from hl7apy.core import Field
 from flask import abort
-from message_validation_logger import app
+from hl7validator import app
 import re
 import pandas as pd
 
@@ -27,21 +24,6 @@ class resultMessage:
 
     def __init__(self):
         self.details = ""
-
-
-def message_preprocessor(msg):
-    """
-    Takes a message fhir and preprocesses. Checks if is a dict and if not replaces boolean and newlines.
-    :return processed message
-    """
-    if type(msg) == dict:
-        return msg
-    else:
-        return (
-            msg.replace("\r\n", "")
-            .replace("True", '"True"')
-            .replace("False", '"False"')
-        )
 
 
 def define_custom_chars(msg):
@@ -74,17 +56,6 @@ def define_custom_chars(msg):
         }
 
 
-def hl7construct_error(err):
-    """
-    function for creating readable messages for hl7v2 error exceptions, in order to not create a NoneType exception and be more readable.
-    :param err: error object
-    :return: error as string human-readable
-    """
-    if type(err) == ChildNotFound:
-        return "Segment with Fields with unknown children"
-    return err.args[0]
-
-
 def set_message_to_validate(msg):
     """
     replace newline chars for messages since parse_message does not take into account custom_chars
@@ -99,7 +70,7 @@ def set_message_to_validate(msg):
         return msg
 
 
-def hl7validatorapi2(msg):
+def hl7validatorapi(msg):
     app.logger.info("message received in hl7validatorapi: {}".format(msg))
     resultmessage = resultMessage()
     custom_chars = define_custom_chars(msg)
@@ -113,18 +84,24 @@ def hl7validatorapi2(msg):
     try:
         hl7version = parse_message(setmsg).version
         msh_10 = parse_message(setmsg).msh.msh_10.value
+        message = "Message v" + hl7version + " Valid"
+
     except Exception as err:
         app.logger.info(
             "Strange error with message: {} ----> ERROR {}".format(msg, err)
         )
+        print(err)
         resultmessage.statusCode = "Failed"
         resultmessage.message = "Error parsing message"
         return resultmessage.__dict__
     try:
         parse_message(setmsg).validate(report_file="report.txt")
+        resultmessage.statusCode = status
+        resultmessage.details = details
+        resultmessage.message = message
+        return resultmessage.__dict__
     except:
         pass
-    message = "Message v" + hl7version + " Valid"
     # read result
 
     # Open the file (make sure to replace 'your_file.txt' with your actual file name)
@@ -134,7 +111,7 @@ def hl7validatorapi2(msg):
             level, message_level = line.split(":", 1)
             if level == "Error":
                 error = True
-            print(level, message_level)
+            #  print(level, message_level)
             details.append(
                 {
                     "index": str(idx + 1),

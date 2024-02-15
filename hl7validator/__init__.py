@@ -12,18 +12,18 @@ swagger = Swagger(
             "title": "HL7 Validator",
             "description": "HL7 Validation API",
             "contact": {
-                "responsibleOrganization": "HLTSYS",
+                "responsibleOrganization": "HL7PT",
                 "responsibleDeveloper": "Joao Almeida",
-                "email": "joao.almeida@hltsys.com",
-                "url": "http://hltsys.pt/pt/home-pt-2/",
+                "email": "geral@hl7.pt",
+                "url": "http://hl7.pt",
             },
             "termsOfService": "http://me.com/terms",
             "version": "0.0.4",
         },
-        "host": "hltsys.com",  # overrides localhost:500
-        "basePath": "/helios/api",  # base bash for blueprint registration
+        "host": "fhir.hl7.pt",  # overrides localhost:500
+        "basePath": "",  # base bash for blueprint registration
         "schemes": ["http", "https"],
     },
 )
 
-from message_validation_logger import views
+from hl7validator import views
