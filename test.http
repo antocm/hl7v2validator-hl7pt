@@ -1,0 +1,24 @@
+### hl7v2 validate
+
+POST http://fhir.hl7.pt:8484/hl7validator/api/v1.0/validate/
+Content-Type: application/json
+
+{
+  "data": "MSH|^~\\&|SENDING_APPLICATION|SENDING_FACILITY|RECEIVING_APPLICATION|RECEIVING_FACILITY|20110613083637||ADT^A04|00000001|P|2.3.1||||||8859/1"
+}
+
+### local
+POST http://127.0.0.1:5000/api/hl7/v1/validate/
+Content-Type: application/json
+
+{
+  "data": "MSH|^~\\&|SENDING_APPLICATION|SENDING_FACILITY|RECEIVING_APPLICATION|RECEIVING_FACILITY|20110613083637||ADT^A04|00000001|P|2.3.1||||||8859/1"
+}
+
+### hl7v2 convert
+POST http://127.0.0.1:5000/api/hl7/v1/convert/
+content-type: application/json
+
+{
+  "data": "MSH|^~\\&|SENDING_APPLICATION|SENDING_FACILITY|RECEIVING_APPLICATION|RECEIVING_FACILITY|20110613083637||ADT^A04|00000001|P|2.3.1||||||8859/1"
+}
