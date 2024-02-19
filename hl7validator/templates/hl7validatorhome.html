@@ -37,13 +37,15 @@
                         to CSV</label>
                 </div>
             </div>
-            <textarea class="form-control" id="exampleFormControlTextarea1" name="msg" rows="5"></textarea>
+            <textarea class="form-control" id="exampleFormControlTextarea1" name="msg" rows="5">{{ msg }}</textarea>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" class="btn btn-secondary" onclick="clearContent()">Clear Content</button>
+        <p>Want as an api? check <a href="/apidocs">here</a></p>
     </form>
     <br>
-    {% if msg %}
-    <h2>{{ msg }}</h2>
+    {% if title %}
+    <h2>{{ title }}</h2>
     {% endif %}
 
     {% if result %}
@@ -79,4 +81,9 @@
             </p></div>
     </div>
 </footer>
+<script>
+    function clearContent() {
+        document.getElementById('exampleFormControlTextarea1').value = '';
+    }
+    </script>
 </html>

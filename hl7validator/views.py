@@ -35,7 +35,8 @@ def home():
             print(validation)
             return render_template(
                 "hl7validatorhome.html",
-                msg=validation["message"],
+                title=validation["message"],
+                msg=msg,
                 result=validation["details"],
                 version=VERSION,
             )
@@ -57,7 +58,7 @@ def hl7v2validatorapi():
     return jsonify(hl7validatorapi(data))
 
 
-@app.route("/hl7/api/v1.0/convert/", methods=["POST"])
+@app.route("/hl7validator/api/v1.0/convert/", methods=["POST"])
 def from_hl7_to_df_converter():
     """
     file: docs/converter.yml
