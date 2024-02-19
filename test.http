@@ -1,6 +1,6 @@
 ### hl7v2 validate
 
-POST http://fhir.hl7.pt:8484/hl7validator/api/v1.0/validate/
+POST http://fhir.hl7.pt:8484/api/hl7/v1/validate/
 Content-Type: application/json
 
 {

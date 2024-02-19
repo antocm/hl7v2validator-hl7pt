@@ -100,8 +100,12 @@ def hl7validatorapi(msg):
         resultmessage.details = details
         resultmessage.message = message
         return resultmessage.__dict__
-    except:
-        pass
+    except Exception as err:
+        app.logger.info(
+            "Strange error with message: {} ----> ERROR {}".format(msg, err)
+        )
+        print(err)
+
     # read result
 
     # Open the file (make sure to replace 'your_file.txt' with your actual file name)
