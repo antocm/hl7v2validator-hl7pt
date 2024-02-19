@@ -66,6 +66,8 @@ def set_message_to_validate(msg):
         return msg.replace("\r\n", "\r")
     elif "\n" in msg:
         return msg.replace("\n", "\r")
+    elif "\r" not in msg:
+        return msg + "\r"
     else:
         return msg
 
@@ -95,6 +97,8 @@ def hl7validatorapi(msg):
         resultmessage.message = "Error parsing message"
         return resultmessage.__dict__
     try:
+        print(msg)
+        print(setmsg)
         parse_message(setmsg).validate(report_file="report.txt")
         resultmessage.statusCode = status
         resultmessage.details = details
@@ -104,7 +108,7 @@ def hl7validatorapi(msg):
         app.logger.info(
             "Strange error with message: {} ----> ERROR {}".format(msg, err)
         )
-        print(err)
+        print("eeror", err)
 
     # read result
 

@@ -54,9 +54,9 @@ def hl7v2validatorapi():
     """
     file: docs/v2.yml
     """
-    print(request.json)
+
     data = request.json["data"]
-    print(data)
+
     return jsonify(hl7validatorapi(data))
 
 

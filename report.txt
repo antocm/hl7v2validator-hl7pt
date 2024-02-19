@@ -1,4 +1,3 @@
-Error: Invalid children detected for <Segment MSH>: [None]
-Error: Missing required child OBX.OBX_4
-Error: Missing required child OBX.OBX_4
-Warning: Value CLIA not in table HL70301 in element MSH_4.HD_3
+Error: Missing required child ADT_A01.EVN
+Error: Missing required child ADT_A01.PID
+Error: Missing required child ADT_A01.PV1
