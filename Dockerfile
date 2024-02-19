@@ -9,7 +9,7 @@ WORKDIR /app
 #RUN pip install -r requirements.txt
 
 RUN mkdir /app/hl7validator
-COPY hl7validator /app/message_validatihl7validatoron_logger
+COPY hl7validator /app/hl7validator
 
 ENV VIRTUAL_ENV=/usr/local
 RUN python3 -m pip install pip --upgrade
