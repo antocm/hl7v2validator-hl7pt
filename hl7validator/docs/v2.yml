@@ -1,5 +1,5 @@
 
-  description: "endpoint for receving a HL7v2 and returning a validation state while logging within HS.HELIOS"
+  description: "endpoint for receving a HL7v2 and returning a validation message"
   consumes:
     - "application/json"
   produces:
