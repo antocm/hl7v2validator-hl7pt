@@ -29,15 +29,16 @@ def home():
             return render_template("hl7validatorhome.html", version=VERSION)
         elif req == "hl7v2":
             validation = hl7validatorapi(request.form.get("msg"))
-            print(validation)
+            # print(validation)
             parsed_message = highlight_message(msg)
-            print(parsed_message)
+            #   print(parsed_message)
             return render_template(
                 "hl7validatorhome.html",
                 title=validation["message"],
                 msg=msg,
                 result=validation["details"],
                 version=VERSION,
+                hl7version=validation["hl7version"],
                 parsed=parsed_message,
             )
 

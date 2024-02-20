@@ -9,7 +9,7 @@ if not app.debug:
     if not os.path.exists("logs"):
         os.mkdir("logs")
     file_handler = RotatingFileHandler(
-        "logs/message_validation.log", maxBytes=10240, backupCount=10
+        "logs/message_validation.log", maxBytes=1_000_000, backupCount=20
     )
     file_handler.setFormatter(
         logging.Formatter(

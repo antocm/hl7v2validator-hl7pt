@@ -7,10 +7,24 @@
     color: #F34e10;
 
   }
+
+  .error{
+    text-decoration: wavy underline white;
+
+
+  
+  }
+.segment{
+  border: 1px solid #3c3c3c;
+  border-radius: 4px;
+  padding: 3px; /* Adds space between the content and the border */
+  margin: 5px 0; /* Adds space between each segment */
+}
 .field{
 
   border: 1px solid #3c3c3c;
   border-radius: 4px;
+  padding: 3px; /* Adds space between the content and the border */
   
 }
 
@@ -47,11 +61,23 @@
 .FT1{background-color: #BDB76B}
 .FTS{background-color: #8B008B}
 .NK1{background-color: #BDB76B}
-
-
+.PD1{background-color: #ff71ff}
+.SPM{background-color: #bfff71}
+.RXE{background-color: #ff71ff}
+.RXR{background-color: #8971ff}
+.RXC{background-color: #ffec71}
+.RXA{background-color: #71eeff}
+.TQ1{background-color: #d9d3ff}
+.SCH{background-color: #ff71ff}
+.AIS{background-color: #71ffa3}
+.AIG{background-color: #b2c3f9}
+.AIL{background-color: #f2c7ac}
+.AIP{background-color: #4efc2f}
+.RGS{background-color: #71ffde}
+.PV2{background-color: #ed831f}
 .span-group {
   display: inline-block; /* Allows the group to flow inline but respect block styling */
-  margin-right: 10px; /* Space between each group */
+  margin-right: 3px; /* Space between each group */
 }
 .note {
   display: block; /* Ensures the note appears on its own line within the group */

@@ -8,7 +8,7 @@ from flask import abort
 from hl7validator import app
 import re
 import pandas as pd
-
+from hl7apy.parser import parse_segment
 
 classes_list = {}
 
@@ -21,6 +21,7 @@ class resultMessage:
     message: str
     details: list
     resource: str
+    hl7version: str
 
     def __init__(self):
         self.details = ""
@@ -94,17 +95,19 @@ def hl7validatorapi(msg):
         )
         print(err)
         resultmessage.statusCode = "Failed"
-        resultmessage.message = "Error parsing message"
+        resultmessage.hl7version = hl7version
+        resultmessage.message = "[Error parsing message] " + str(err)
         return resultmessage.__dict__
     try:
         # print(msg)
         app.logger.error(
             "Validating this message after transformation: {}".format(setmsg)
         )
-        xx = parse_message(setmsg).validate(report_file="report.txt")
+        parse_message(setmsg).validate(report_file="report.txt")
         ## print(xx)
         resultmessage.statusCode = status
         resultmessage.details = details
+        resultmessage.hl7version = hl7version
         resultmessage.message = message
         return resultmessage.__dict__
     except Exception as err:
@@ -135,6 +138,7 @@ def hl7validatorapi(msg):
                 message = "Message v" + hl7version + " not valid"
             resultmessage.statusCode = status
             resultmessage.details = details
+            resultmessage.hl7version = hl7version
             resultmessage.message = message
         # print(line.strip())  # .strip() removes leading/trailing whitespace,
     return resultmessage.__dict__
@@ -175,12 +179,38 @@ def highlight_message(msg):
     highligmsg = ""
     for seg in setmsg.split("\r"):
         segment_id = seg[0:3]
+        if len(segment_id) < 3:
+            continue
+        p = parse_segment(seg)
+        max_field = 0
+        list_of_segments = []
+        for s in p.children:
+            print(s)
+            if "Field of type None" not in str(s) and str(s) not in list_of_segments:
+                max_field += 1
+                list_of_segments.append(str(s))
+        # print(p.validate())
         # print(segment_id)
-        newseg = "<span><b>" + segment_id + "</b></span>"
+
+        newseg = '<span style="margin-right: 5px;"><b>' + segment_id + "</b></span>"
+        counter = 0
         for idx, field in enumerate(seg.split("|")[1:]):
-            print(field)
+            #    print(field)
+            class_ = "note"
+            if field != "":
+                print(field != "", field)
+                counter += 1
+                print(
+                    counter,
+                    max_field,
+                )
+                if counter > max_field:
+                    class_ = "note error"
+
             newseg += (
-                '<span class="span-group"><span class="note">'
+                '<span class="span-group"><span class="'
+                + class_
+                + '">'
                 + segment_id
                 + "."
                 + str(idx + 1)
@@ -188,6 +218,6 @@ def highlight_message(msg):
                 + field
                 + "</span></span>"
             )
-        highligmsg += '<p class="' + segment_id + '">' + newseg + "</p>"
-    print(highligmsg)
-    return highligmsg + "</p>"
+        highligmsg += '<p class="segment ' + segment_id + '">' + newseg + "</p>"
+    # print(highligmsg)
+    return highligmsg

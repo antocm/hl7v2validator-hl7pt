@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>HL7 Validator</title>
+    <title>HL7 Validator </title>
     <link href="/static/bootstrap.min.css" rel="stylesheet" media="screen">
 
     <link href="/static/mystyle.css" rel="stylesheet" media="screen">
@@ -11,13 +11,13 @@
 </head>
 
 <body>
-<div class="container">
+<div class="container-fluid p-5">
     <div class="row align-items-center">
         <div class="col-2">
             <img style="float:left; width:70%;" src="/static/hl7pt.png" class="rounded float-left" alt="HL7PT">
         </div>
         <div class="col-10">
-            <h1>HL7 V2 Validation Tool</h1>
+            <h1>HL7 V2 Validation Tool <a style="font-size:x-small">Release Version: {{version}}</a></h1>
         </div>
 
     </div>
@@ -45,11 +45,12 @@
         <p>Want as an api? check <a href="/apidocs">here</a></p>
     </form>
     <br>
+
     {% if title %}
     <h2>{{ title }}</h2>
     {% endif %}
     {% if parsed %}
-    <div class="container mt-3">
+
         <p>
           <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
             Click to see parsed message
@@ -60,11 +61,13 @@
             {{parsed|safe}}
           </div>
         </div>
-      </div>
+
+      <br>
     {% endif %}
    
 
     {% if result %}
+    <p>For more info on the, check <a href="https://hl7-definition.caristix.com/v2/HL7v{{hl7version}}"> the {{hl7version}} spec here</a></p>
     <table class="table">
         <thead>
         <tr>
@@ -91,12 +94,7 @@
 
 </body>
 <footer>
-    <div class="container">
-        <div class="col-2 offset-10">
-            <p style="text-align: left">
-                Release Version: {{version}}
-            </p></div>
-    </div>
+
 </footer>
 <script>
     function clearContent() {
