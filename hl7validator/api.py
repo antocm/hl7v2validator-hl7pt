@@ -79,7 +79,7 @@ def hl7validatorapi(msg):
     custom_chars = define_custom_chars(msg)
     details = []
     status = "Success"
-
+    hl7version = None
     if not msg:
         abort(404)
     error = False
@@ -185,7 +185,7 @@ def highlight_message(msg):
         max_field = 0
         list_of_segments = []
         for s in p.children:
-            print(s)
+            # print(s)
             if "Field of type None" not in str(s) and str(s) not in list_of_segments:
                 max_field += 1
                 list_of_segments.append(str(s))
@@ -198,12 +198,12 @@ def highlight_message(msg):
             #    print(field)
             class_ = "note"
             if field != "":
-                print(field != "", field)
+                # print(field != "", field)
                 counter += 1
-                print(
-                    counter,
-                    max_field,
-                )
+                #  print(
+                #     counter,
+                #     max_field,
+                # )
                 if counter > max_field:
                     class_ = "note error"
 

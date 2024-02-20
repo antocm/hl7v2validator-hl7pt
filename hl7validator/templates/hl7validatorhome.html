@@ -11,7 +11,7 @@
 </head>
 
 <body>
-<div class="container-fluid p-5">
+<div class="container-fluid px-5">
     <div class="row align-items-center">
         <div class="col-2">
             <img style="float:left; width:70%;" src="/static/hl7pt.png" class="rounded float-left" alt="HL7PT">
@@ -67,7 +67,9 @@
    
 
     {% if result %}
+    {% if hl7version %}
     <p>For more info on the, check <a href="https://hl7-definition.caristix.com/v2/HL7v{{hl7version}}"> the {{hl7version}} spec here</a></p>
+    {% endif %}
     <table class="table">
         <thead>
         <tr>
