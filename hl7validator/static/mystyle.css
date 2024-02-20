@@ -30,17 +30,17 @@
 
 .MSH{ background-color: #FF5733}
 .EVN{background-color: #DAF7A6}
-  .PID{background-color: #FFC300}
-  .PV1{background-color: #ff3cc4}
-  .ORC{background-color: #C70039}
-  .OBR{background-color: #900C3F}
-  .OBX{background-color: #FF5733}
-  .NTE{background-color: #DAF7A6}
-  .DG1{background-color: #FFC300}
-  .IN1{background-color: #581845}
-  .GT1{background-color: #C70039}
-  .AL1{background-color: #900C3F}
-
+.PID{background-color: #FFC300}
+.PV1{background-color: #ff3cc4}
+.ORC{background-color: #C70039}
+.OBR{background-color: #900C3F}
+.OBX{background-color: #f8cfc6}
+.NTE{background-color: #DAF7A6}
+.DG1{background-color: #FFC300}
+.IN1{background-color: #e93bb5}
+.GT1{background-color: #C70039}
+.AL1{background-color: #900C3F}
+.TXA{background-color: #83726e}
 .ARQ{background-color: #FFC0CB}
 .BLG{background-color: #4682B4}
 .CDM{background-color: #8A2BE2}
@@ -75,6 +75,10 @@
 .AIP{background-color: #4efc2f}
 .RGS{background-color: #71ffde}
 .PV2{background-color: #ed831f}
+.PR1{background-color: #c9c2f2}
+.RXO{background-color: #e4f2c2}
+.RXD{background-color: #9b9a9b}
+.MSA{background-color: #e2c2f2}
 .span-group {
   display: inline-block; /* Allows the group to flow inline but respect block styling */
   margin-right: 3px; /* Space between each group */

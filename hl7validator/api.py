@@ -90,8 +90,8 @@ def hl7validatorapi(msg):
         message = "Message v" + hl7version + " Valid"
 
     except Exception as err:
-        app.logger.info(
-            "Strange error with message: {} ----> ERROR {}".format(msg, err)
+        app.logger.error(
+            "Not able to parse message: {} ----> ERROR {}".format(msg, err)
         )
         print(err)
         resultmessage.statusCode = "Failed"
@@ -100,7 +100,7 @@ def hl7validatorapi(msg):
         return resultmessage.__dict__
     try:
         # print(msg)
-        app.logger.error(
+        app.logger.info(
             "Validating this message after transformation: {}".format(setmsg)
         )
         parse_message(setmsg).validate(report_file="report.txt")
@@ -181,7 +181,10 @@ def highlight_message(msg):
         segment_id = seg[0:3]
         if len(segment_id) < 3:
             continue
-        p = parse_segment(seg)
+        try:
+            p = parse_segment(seg)
+        except Exception as e:
+            return "<p> [Error parsing message] </p>" + str(e)
         max_field = 0
         list_of_segments = []
         for s in p.children:
