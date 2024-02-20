@@ -97,18 +97,21 @@ def hl7validatorapi(msg):
         resultmessage.message = "Error parsing message"
         return resultmessage.__dict__
     try:
-        print(msg)
-        print(setmsg)
-        parse_message(setmsg).validate(report_file="report.txt")
+        # print(msg)
+        app.logger.error(
+            "Validating this message after transformation: {}".format(setmsg)
+        )
+        xx = parse_message(setmsg).validate(report_file="report.txt")
+        ## print(xx)
         resultmessage.statusCode = status
         resultmessage.details = details
         resultmessage.message = message
         return resultmessage.__dict__
     except Exception as err:
-        app.logger.info(
+        app.logger.error(
             "Strange error with message: {} ----> ERROR {}".format(msg, err)
         )
-        print("eeror", err)
+    # print("eeror", err)
 
     # read result
 
@@ -165,3 +168,26 @@ def from_hl7_to_df(msg):
     df = pd.DataFrame.from_dict(result2, orient="index")
     df.to_csv(file)
     return file
+
+
+def highlight_message(msg):
+    setmsg = set_message_to_validate(msg)
+    highligmsg = ""
+    for seg in setmsg.split("\r"):
+        segment_id = seg[0:3]
+        # print(segment_id)
+        newseg = "<span><b>" + segment_id + "</b></span>"
+        for idx, field in enumerate(seg.split("|")[1:]):
+            print(field)
+            newseg += (
+                '<span class="span-group"><span class="note">'
+                + segment_id
+                + "."
+                + str(idx + 1)
+                + '</span><span class="field main-content">'
+                + field
+                + "</span></span>"
+            )
+        highligmsg += '<p class="' + segment_id + '">' + newseg + "</p>"
+    print(highligmsg)
+    return highligmsg + "</p>"

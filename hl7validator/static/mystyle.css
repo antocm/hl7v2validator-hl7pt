@@ -7,3 +7,60 @@
     color: #F34e10;
 
   }
+.field{
+
+  border: 1px solid #3c3c3c;
+  border-radius: 4px;
+  
+}
+
+.MSH{ background-color: #FF5733}
+.EVN{background-color: #DAF7A6}
+  .PID{background-color: #FFC300}
+  .PV1{background-color: #ff3cc4}
+  .ORC{background-color: #C70039}
+  .OBR{background-color: #900C3F}
+  .OBX{background-color: #FF5733}
+  .NTE{background-color: #DAF7A6}
+  .DG1{background-color: #FFC300}
+  .IN1{background-color: #581845}
+  .GT1{background-color: #C70039}
+  .AL1{background-color: #900C3F}
+
+.ARQ{background-color: #FFC0CB}
+.BLG{background-color: #4682B4}
+.CDM{background-color: #8A2BE2}
+.CNS{background-color: #A52A2A}
+.CON{background-color: #DEB887}
+.CSR{background-color: #5F9EA0}
+.CSS{background-color: #7FFF00}
+.CTD{background-color: #D2691E}
+.CTI{background-color: #FF7F50}
+.DB1{background-color: #6495ED}
+.DRG{background-color: #DC143C}
+.DSC{background-color: #00FFFF}
+.DSP{background-color: #00008B}
+.EQL{background-color: #008B8B}
+.ERQ{background-color: #B8860B}
+.ERR{background-color: #A9A9A9}
+.FAC{background-color: #006400}
+.FT1{background-color: #BDB76B}
+.FTS{background-color: #8B008B}
+.NK1{background-color: #BDB76B}
+
+
+.span-group {
+  display: inline-block; /* Allows the group to flow inline but respect block styling */
+  margin-right: 10px; /* Space between each group */
+}
+.note {
+  display: block; /* Ensures the note appears on its own line within the group */
+  font-size: smaller; /* Smaller font size for the note */
+  font-weight: normal; /* Adjust weight if necessary */
+  text-align: center; /* Center-aligns the note */
+}
+.main-content {
+  display: block; /* Ensures the main content appears on its own line within the group */
+  font-weight: bold; /* Bold for main content */
+  text-align: center; /* Center-aligns the main content */
+}

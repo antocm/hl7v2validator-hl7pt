@@ -1,3 +1,9 @@
-Error: Missing required child ADT_A01.EVN
-Error: Missing required child ADT_A01.PID
-Error: Missing required child ADT_A01.PV1
+Error: Invalid children detected for <Segment EVN>: [None]
+Error: Child limit exceeded PID.PID_12
+Error: Child limit exceeded PID_13.XTN_1
+Error: Missing required child PID_13.XTN_3
+Error: Child limit exceeded PID_14.XTN_1
+Error: Missing required child PID_14.XTN_3
+Error: Child limit exceeded PID.PID_19
+Error: Child limit exceeded PID.PID_20
+Error: Datatype None is not correct for PID.PID_20 (it must be None)

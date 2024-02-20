@@ -7,10 +7,7 @@ from flask import (
     abort,
 )
 import os
-from hl7validator.api import (
-    hl7validatorapi,
-    from_hl7_to_df,
-)
+from hl7validator.api import hl7validatorapi, from_hl7_to_df, highlight_message
 from hl7validator import app
 
 # http://flask.pocoo.org/docs/1.0/
@@ -33,12 +30,15 @@ def home():
         elif req == "hl7v2":
             validation = hl7validatorapi(request.form.get("msg"))
             print(validation)
+            parsed_message = highlight_message(msg)
+            print(parsed_message)
             return render_template(
                 "hl7validatorhome.html",
                 title=validation["message"],
                 msg=msg,
                 result=validation["details"],
                 version=VERSION,
+                parsed=parsed_message,
             )
 
         elif req == "converter":
