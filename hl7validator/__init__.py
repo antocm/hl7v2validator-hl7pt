@@ -20,9 +20,9 @@ swagger = Swagger(
             "termsOfService": "http://me.com/terms",
             "version": "0.0.4",
         },
-        "host": "fhir.hl7.pt",  # overrides localhost:500
+        "host": "version2.hl7.pt",  # overrides localhost:500
         "basePath": "",  # base bash for blueprint registration
-        "schemes": ["http", "https"],
+        "schemes": ["https"],
     },
 )
 

@@ -11,7 +11,7 @@ from hl7validator.api import hl7validatorapi, from_hl7_to_df, highlight_message
 from hl7validator import app
 
 # http://flask.pocoo.org/docs/1.0/
-VERSION = "0.0.1"
+VERSION = "0.0.4"
 
 
 @app.route("/docs", methods=["GET"])
