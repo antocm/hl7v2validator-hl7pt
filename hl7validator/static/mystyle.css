@@ -27,7 +27,10 @@
   padding: 3px; /* Adds space between the content and the border */
   
 }
-
+.info {
+  background-color: #e7f3fe;
+  border-left: 6px solid #2196F3;
+}
 .MSH{ background-color: #FF5733}
 .EVN{background-color: #DAF7A6}
 .PID{background-color: #FFC300}

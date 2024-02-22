@@ -58,7 +58,11 @@
         </p>
         <div class="collapse" id="collapseExample">
           <div class="card card-body">
+            {% if hl7version %}
+            <p>For more info on the, check <a href="https://hl7-definition.caristix.com/v2/HL7v{{hl7version}}" target="_blank"> the {{hl7version}} spec here</a>. Or click with Segment to see the Segment Spec.</p>
+            {% endif %}
             {{parsed|safe}}
+
           </div>
         </div>
 
@@ -67,9 +71,7 @@
    
 
     {% if result %}
-    {% if hl7version %}
-    <p>For more info on the, check <a href="https://hl7-definition.caristix.com/v2/HL7v{{hl7version}}"> the {{hl7version}} spec here</a></p>
-    {% endif %}
+
     <table class="table">
         <thead>
         <tr>

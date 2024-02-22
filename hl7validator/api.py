@@ -174,8 +174,9 @@ def from_hl7_to_df(msg):
     return file
 
 
-def highlight_message(msg):
+def highlight_message(msg, hl7version):
     setmsg = set_message_to_validate(msg)
+
     highligmsg = ""
     for seg in setmsg.split("\r"):
         segment_id = seg[0:3]
@@ -195,7 +196,16 @@ def highlight_message(msg):
         # print(p.validate())
         # print(segment_id)
 
-        newseg = '<span style="margin-right: 5px;"><b>' + segment_id + "</b></span>"
+        newseg = (
+            '<span style="margin-right: 5px;"><b>'
+            + '<a href="https://hl7-definition.caristix.com/v2/HL7v'
+            + hl7version
+            + "/Segments/"
+            + segment_id
+            + '" target="_blank">'
+            + segment_id
+            + "</a></b></span>"
+        )
         counter = 0
         for idx, field in enumerate(seg.split("|")[1:]):
             #    print(field)

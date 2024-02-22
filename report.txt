@@ -1,8 +1,8 @@
-Error: Missing required child RDS_O13_ORDER_DETAIL_SUPPLEMENT.NTE
-Error: Missing required child RDS_O13_ORDER.RXR
-Warning: Value OD not in table HL70335 in element TQ_2.RI_1
-Warning: Value NZMT not in table HL70396 in element RXO_1.CE_3
-Warning: Value HL70162 not in table HL70396 in element RXR_1.CE_3
-Warning: Value NZMT  not in table HL70396 in element RXD_2.CE_3
-Warning: Value 40 not in table HL70136 in element RXD.RXD_14
-Warning: Value CP not in table HL70017 in element FT1.FT1_6
+Error: Child limit exceeded PID.PID_12
+Error: Child limit exceeded PID_13.XTN_1
+Error: Missing required child PID_13.XTN_3
+Error: Child limit exceeded PID_14.XTN_1
+Error: Missing required child PID_14.XTN_3
+Error: Child limit exceeded PID.PID_19
+Error: Child limit exceeded PID.PID_20
+Error: Datatype None is not correct for PID.PID_20 (it must be None)
