@@ -245,7 +245,7 @@ def highlight_message(msg, hl7version):
                     + class_
                     + '">'
                     + segment_id
-                    + "."
+                    + "-"
                     + "1"
                     + '</span><span class="field main-content">'
                     + "|"
@@ -258,7 +258,7 @@ def highlight_message(msg, hl7version):
                 + class_
                 + '">'
                 + segment_id
-                + "."
+                + "-"
                 + str(idx + add)
                 + '</span><span class="field main-content">'
                 + field

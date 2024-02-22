@@ -22,6 +22,7 @@ def redirection():
 @app.route("/", methods=["GET", "POST"])
 @app.route("/hl7validator", methods=["GET", "POST"])
 def home():
+    parsed_message = None
     if request.method == "POST":
         req = request.form.get("options")
         msg = request.form.get("msg")
@@ -29,8 +30,9 @@ def home():
             return render_template("hl7validatorhome.html", version=VERSION)
         elif req == "hl7v2":
             validation = hl7validatorapi(request.form.get("msg"))
-            # print(validation)
-            parsed_message = highlight_message(msg, validation["hl7version"])
+            print(validation)
+            if validation["hl7version"]:
+                parsed_message = highlight_message(msg, validation["hl7version"])
             #   print(parsed_message)
             return render_template(
                 "hl7validatorhome.html",
