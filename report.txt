@@ -1,3 +1,4 @@
+Error: Invalid children detected for <Segment EVN>: [None]
 Error: Child limit exceeded PID.PID_12
 Error: Child limit exceeded PID_13.XTN_1
 Error: Missing required child PID_13.XTN_3

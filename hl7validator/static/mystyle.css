@@ -100,3 +100,39 @@ text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
   font-weight: bold; /* Bold for main content */
   text-align: center; /* Center-aligns the main content */
 }
+
+
+
+.tooltiptext {
+  visibility: hidden;
+  width: auto;
+  background-color: #f5f5f5; /* Light grey background */
+  color: black; /* Typically black text */
+  text-align: center;
+  border-radius: 6px; /* Slightly rounded corners like some default tooltips */
+  padding: 5px; /* Minimal padding around the text */
+  position: absolute;
+  z-index: 1;
+  font-size: smaller;
+  /* Optional: border for a subtle definition */
+  border: 1px solid #dcdcdc;
+
+  /* Fade in */
+  opacity: 0;
+  transition: opacity 0.2s; /* Smooth and quick transition for tooltip appearance */
+}
+
+.tooltiptext::after {
+  content: " ";
+  position: absolute;
+  
+  border-style: solid;
+  border-color: #f5f5f5 transparent transparent transparent; /* Arrow with the same color as the tooltip background */
+}
+
+/* Show the tooltip text when you hover over the tooltip container */
+.span-group:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+
+}
