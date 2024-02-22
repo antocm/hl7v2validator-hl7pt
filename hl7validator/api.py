@@ -208,7 +208,23 @@ def highlight_message(msg, hl7version):
         )
         counter = 0
         for idx, field in enumerate(seg.split("|")[1:]):
-            #    print(field)
+            warningfield = False
+
+            if segment_id == "MSH":
+                add = 2
+            else:
+                add = 1
+            try:
+                if field:
+                    #  print(field)
+                    #  print(segment_id + "_" + str(idx + 1))
+                    f = Field(segment_id + "_" + str(idx + add), version=hl7version)
+                    f.value = field
+                    print(f)
+                    f.validate()
+            except Exception as e:
+                print(e)
+                warningfield = True
             class_ = "note"
             if field != "":
                 # print(field != "", field)
@@ -217,16 +233,27 @@ def highlight_message(msg, hl7version):
                 #     counter,
                 #     max_field,
                 # )
-                if counter > max_field:
+                if counter > max_field or warningfield:
                     class_ = "note error"
-
+            if segment_id == "MSH" and idx == 0:
+                newseg += (
+                    '<span class="span-group"><span class="'
+                    + class_
+                    + '">'
+                    + segment_id
+                    + "."
+                    + "1"
+                    + '</span><span class="field main-content">'
+                    + "|"
+                    + "</span></span>"
+                )
             newseg += (
                 '<span class="span-group"><span class="'
                 + class_
                 + '">'
                 + segment_id
                 + "."
-                + str(idx + 1)
+                + str(idx + add)
                 + '</span><span class="field main-content">'
                 + field
                 + "</span></span>"

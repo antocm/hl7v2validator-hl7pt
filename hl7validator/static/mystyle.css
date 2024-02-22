@@ -9,7 +9,9 @@
   }
 
   .error{
-    text-decoration: wavy underline white;
+    color: red;
+font-weight: bold;
+text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 
 
   
@@ -31,11 +33,11 @@
   background-color: #e7f3fe;
   border-left: 6px solid #2196F3;
 }
-.MSH{ background-color: #FF5733}
+.MSH{ background-color: #ffa996}
 .EVN{background-color: #DAF7A6}
 .PID{background-color: #FFC300}
-.PV1{background-color: #ff3cc4}
-.ORC{background-color: #C70039}
+.PV1{background-color: #fc74d3}
+.ORC{background-color: #fabdce}
 .OBR{background-color: #900C3F}
 .OBX{background-color: #f8cfc6}
 .NTE{background-color: #DAF7A6}
@@ -54,7 +56,7 @@
 .CTD{background-color: #D2691E}
 .CTI{background-color: #FF7F50}
 .DB1{background-color: #6495ED}
-.DRG{background-color: #DC143C}
+.DRG{background-color: #f0dffd}
 .DSC{background-color: #00FFFF}
 .DSP{background-color: #00008B}
 .EQL{background-color: #008B8B}
@@ -82,6 +84,8 @@
 .RXO{background-color: #e4f2c2}
 .RXD{background-color: #9b9a9b}
 .MSA{background-color: #e2c2f2}
+
+
 .span-group {
   display: inline-block; /* Allows the group to flow inline but respect block styling */
   margin-right: 3px; /* Space between each group */
@@ -89,7 +93,6 @@
 .note {
   display: block; /* Ensures the note appears on its own line within the group */
   font-size: smaller; /* Smaller font size for the note */
-  font-weight: normal; /* Adjust weight if necessary */
   text-align: center; /* Center-aligns the note */
 }
 .main-content {
