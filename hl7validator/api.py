@@ -1,14 +1,17 @@
-from hl7apy.parser import parse_message
+from hl7apy.parser import parse_message, parse_field, parse_component
 from hl7apy import parser
 from hl7apy.exceptions import (
     UnsupportedVersion,
 )
-from hl7apy.core import Field
+from hl7apy.core import Field, Component
 from flask import abort
 from hl7validator import app
 import re
 import pandas as pd
 from hl7apy.parser import parse_segment
+from hl7apy.consts import VALIDATION_LEVEL
+from hl7apy.v2_5 import ST
+import os
 
 classes_list = {}
 
@@ -86,7 +89,8 @@ def hl7validatorapi(msg):
     setmsg = set_message_to_validate(msg)
     try:
         hl7version = parse_message(setmsg).version
-        msh_10 = parse_message(setmsg).msh.msh_10.value
+        msh_9 = parse_message(setmsg).msh.msh_9.value
+        print(msh_9)
         message = "Message v" + hl7version + " Valid"
 
     except Exception as err:
@@ -98,18 +102,20 @@ def hl7validatorapi(msg):
         resultmessage.hl7version = hl7version
         resultmessage.message = "[Error parsing message] " + str(err)
         return resultmessage.__dict__
+    if msh_9 == "":
+        resultmessage.statusCode = "Failed"
+        resultmessage.hl7version = hl7version
+        resultmessage.message = "[Error parsing message] No MSH9"
+        return resultmessage.__dict__
     try:
         # print(msg)
         app.logger.info(
             "Validating this message after transformation: {}".format(setmsg)
         )
-        parse_message(setmsg).validate(report_file="report.txt")
-        ## print(xx)
-        resultmessage.statusCode = status
-        resultmessage.details = details
-        resultmessage.hl7version = hl7version
-        resultmessage.message = message
-        return resultmessage.__dict__
+        parse_message(setmsg).validate(
+            report_file="report.txt",
+        )
+
     except Exception as err:
         app.logger.error(
             "Strange error with message: {} ----> ERROR {}".format(msg, err)
@@ -122,10 +128,11 @@ def hl7validatorapi(msg):
     with open("report.txt", "r") as file:
         # Read and print each line
         for idx, line in enumerate(file):
+            print(line)
             level, message_level = line.split(":", 1)
             if level == "Error":
                 error = True
-            #  print(level, message_level)
+            print(level, message_level)
             details.append(
                 {
                     "index": str(idx + 1),
@@ -136,11 +143,13 @@ def hl7validatorapi(msg):
             if error:
                 status = "Failed"
                 message = "Message v" + hl7version + " not valid"
-            resultmessage.statusCode = status
-            resultmessage.details = details
-            resultmessage.hl7version = hl7version
-            resultmessage.message = message
-        # print(line.strip())  # .strip() removes leading/trailing whitespace,
+    resultmessage.statusCode = status
+    resultmessage.details = details
+    resultmessage.hl7version = hl7version
+    resultmessage.message = message
+    os.remove("report.txt")
+
+    # print(line.strip())  # .strip() removes leading/trailing whitespace,
     return resultmessage.__dict__
 
 
@@ -174,18 +183,21 @@ def from_hl7_to_df(msg):
     return file
 
 
-def highlight_message(msg, hl7version):
-    setmsg = set_message_to_validate(msg)
+def highlight_message(msg, validation):
+    hl7version = validation["hl7version"]
 
+    setmsg = set_message_to_validate(msg)
+    # print(hl7version)
     highligmsg = ""
     for seg in setmsg.split("\r"):
         segment_id = seg[0:3]
         if len(segment_id) < 3:
             continue
         try:
-            p = parse_segment(seg)
+            p = parse_segment(seg, version=hl7version)
         except Exception as e:
-            return "<p> [Error parsing message] </p>" + str(e)
+            print("segment_id", segment_id, e)
+            return "<p> [Error parsing message] </p>" + str(e), validation
         max_field = 0
         list_of_segments = []
         for s in p.children:
@@ -227,19 +239,19 @@ def highlight_message(msg, hl7version):
             except Exception as e:
                 print(e)
                 warningfield = True
+                counter -= 1
             class_ = "note"
             if field != "":
                 # print(field != "", field)
                 counter += 1
-                #  print(
-                #     counter,
-                #     max_field,
-                # )
+
                 if counter > max_field or warningfield:
+                    print(counter, max_field)
+                    print("error on", field)
                     class_ = "note error"
             if segment_id == "MSH" and idx == 0:
                 newseg += (
-                    '"<span class="span-group"><span class="tooltiptext">'
+                    '<span class="span-group"><span class="tooltiptext">'
                     + "Field Separator"
                     + '</span><span  class="'
                     + class_
@@ -252,7 +264,7 @@ def highlight_message(msg, hl7version):
                     + "</span></span>"
                 )
             newseg += (
-                '"<span class="span-group"><span class="tooltiptext">'
+                '<span class="span-group"><span class="tooltiptext">'
                 + field_name
                 + '</span><span class="'
                 + class_
@@ -266,4 +278,4 @@ def highlight_message(msg, hl7version):
             )
         highligmsg += '<p class="segment ' + segment_id + '">' + newseg + "</p>"
     # print(highligmsg)
-    return highligmsg
+    return highligmsg, validation

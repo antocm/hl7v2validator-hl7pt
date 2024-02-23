@@ -1,1 +1,0 @@
-Warning: Value ADM not in table HL70023 in element PV1.PV1_14
