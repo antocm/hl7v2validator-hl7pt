@@ -1,16 +1,17 @@
-from hl7apy.parser import parse_message, parse_field, parse_component
-from hl7apy import parser
+from hl7apy.parser import parse_message
+from hl7apy import parser, utils
 from hl7apy.exceptions import (
     UnsupportedVersion,
 )
-from hl7apy.core import Field, Component
+from hl7apy.core import Field
 from flask import abort
 from hl7validator import app
 import re
 import pandas as pd
 from hl7apy.parser import parse_segment
-from hl7apy.consts import VALIDATION_LEVEL
-from hl7apy.v2_5 import ST
+from datetime import datetime
+import re
+
 import os
 
 classes_list = {}
@@ -28,6 +29,75 @@ class resultMessage:
 
     def __init__(self):
         self.details = ""
+
+
+def check_simple_format(value):
+    # Define pattern for checking the format
+    date_pattern = r"\d{4}(\d{2}(\d{2})?)?"
+
+    # Check if the value matches the expected pattern
+    if not re.match(date_pattern, value):
+        return False, "Value does not match the expected format."
+
+    # Try to parse the value up to the highest precision provided
+    format_str = "%Y"
+    if len(value) > 4:
+        format_str += "%m"
+    if len(value) > 6:
+        format_str += "%d"
+
+    try:
+        parsed_date = datetime.strptime(value, format_str)
+    except ValueError:
+        return False, "Failed to parse date."
+
+    return True, "Format is valid."
+
+
+def check_format(value):
+    # Split the datetime and timezone parts, if a timezone is present
+    parts = value.split("+") if "+" in value else value.split("-")
+    datetime_part = parts[0]
+    timezone_part = (
+        "+" + parts[1]
+        if len(parts) > 1 and "+" in value
+        else "-" + parts[1]
+        if len(parts) > 1
+        else None
+    )
+
+    # Define patterns for checking the format
+    datetime_pattern = r"\d{4}(\d{2}(\d{2}(\d{2}(\d{2}(\d{2}(\.\d{1,4})?)?)?)?)?)?"
+    timezone_pattern = r"[+-]\d{4}"
+
+    # Check if the datetime part matches the expected pattern
+    if not re.match(datetime_pattern, datetime_part):
+        return False, "Datetime part does not match the expected format."
+
+    # If a timezone part is present, check if it matches the expected pattern
+    if timezone_part and not re.match(timezone_pattern, timezone_part):
+        return False, "Timezone part does not match the expected format."
+
+    # Try to parse the datetime part up to the highest precision provided
+    # The format varies depending on the length of the datetime part
+    format_str = "%Y"
+    if len(datetime_part) > 4:
+        format_str += "%m"
+    if len(datetime_part) > 6:
+        format_str += "%d"
+    if len(datetime_part) > 8:
+        format_str += "%H"
+    if len(datetime_part) > 10:
+        format_str += "%M"
+    if len(datetime_part) > 12:
+        format_str += "%S"
+
+    try:
+        parsed_datetime = datetime.strptime(datetime_part, format_str)
+    except ValueError:
+        return False, "Failed to parse datetime part."
+
+    return True, "Format is valid."
 
 
 def define_custom_chars(msg):
@@ -76,6 +146,26 @@ def set_message_to_validate(msg):
         return msg
 
 
+def read_report(report, details, error):
+    with open(report, "r") as file:
+        # Read and print each line
+        for line in file:
+            # print(line)
+            level, message_level = line.split(":", 1)
+            if level == "Error":
+                error = True
+            print(level, message_level)
+            details.append(
+                {
+                    "level": level,
+                    "message": message_level,
+                }
+            )
+    os.remove(report)
+
+    return details, error
+
+
 def hl7validatorapi(msg):
     app.logger.info("message received in hl7validatorapi: {}".format(msg))
     resultmessage = resultMessage()
@@ -92,7 +182,7 @@ def hl7validatorapi(msg):
         msh_9 = parse_message(setmsg).msh.msh_9.value
         print(msh_9)
         message = "Message v" + hl7version + " Valid"
-
+        msh_18 = parse_message(setmsg).msh.msh_18.value
     except Exception as err:
         app.logger.error(
             "Not able to parse message: {} ----> ERROR {}".format(msg, err)
@@ -107,12 +197,21 @@ def hl7validatorapi(msg):
         resultmessage.hl7version = hl7version
         resultmessage.message = "[Error parsing message] No MSH9"
         return resultmessage.__dict__
+    if msh_18 == "ASCII" or msh_18 == "":
+        if not setmsg.isascii():
+            details.append(
+                {
+                    "level": "Error",
+                    "message": "Message is not ASCII encoded",
+                }
+            )
+
     try:
         # print(msg)
         app.logger.info(
             "Validating this message after transformation: {}".format(setmsg)
         )
-        parse_message(setmsg).validate(
+        parse_message(setmsg, find_groups=True).validate(
             report_file="report.txt",
         )
 
@@ -120,36 +219,17 @@ def hl7validatorapi(msg):
         app.logger.error(
             "Strange error with message: {} ----> ERROR {}".format(msg, err)
         )
-    # print("eeror", err)
 
-    # read result
+    details, error = read_report("report.txt", details, error)
 
-    # Open the file (make sure to replace 'your_file.txt' with your actual file name)
-    with open("report.txt", "r") as file:
-        # Read and print each line
-        for idx, line in enumerate(file):
-            print(line)
-            level, message_level = line.split(":", 1)
-            if level == "Error":
-                error = True
-            print(level, message_level)
-            details.append(
-                {
-                    "index": str(idx + 1),
-                    "level": level,
-                    "message": message_level,
-                }
-            )
-            if error:
-                status = "Failed"
-                message = "Message v" + hl7version + " not valid"
+    if error:
+        status = "Failed"
+        message = "Message v" + hl7version + " not valid"
     resultmessage.statusCode = status
     resultmessage.details = details
     resultmessage.hl7version = hl7version
     resultmessage.message = message
-    os.remove("report.txt")
 
-    # print(line.strip())  # .strip() removes leading/trailing whitespace,
     return resultmessage.__dict__
 
 
@@ -195,8 +275,8 @@ def highlight_message(msg, validation):
             continue
         try:
             p = parse_segment(seg, version=hl7version)
+
         except Exception as e:
-            print("segment_id", segment_id, e)
             return "<p> [Error parsing message] </p>" + str(e), validation
         max_field = 0
         list_of_segments = []
@@ -205,9 +285,6 @@ def highlight_message(msg, validation):
             if "Field of type None" not in str(s) and str(s) not in list_of_segments:
                 max_field += 1
                 list_of_segments.append(str(s))
-        # print(p.validate())
-        # print(segment_id)
-
         newseg = (
             '<span style="margin-right: 5px;"><b>'
             + '<a href="https://hl7-definition.caristix.com/v2/HL7v'
@@ -227,17 +304,43 @@ def highlight_message(msg, validation):
             else:
                 add = 1
             try:
-                # if field:
-                #  print(field)
-                #  print(segment_id + "_" + str(idx + 1))
                 f = Field(segment_id + "_" + str(idx + add), version=hl7version)
                 f.value = field
-                print(f)
-
                 field_name = f.long_name.replace("_", " ").lower().title()
                 f.validate()
+                if f.datatype == "DTM" and f.value != "":  # check date format
+                    print(f.value)
+                    chk, _ = check_format(f.value)
+                    if not chk:
+                        warningfield = True
+
+                        validation["details"].append(
+                            {
+                                "level": "Error",
+                                "message": "Invalid datetime format on field "
+                                + segment_id
+                                + "."
+                                + f.name,
+                            }
+                        )
+                if f.datatype == "DT" and f.value != "":  # check date format
+                    print(f.value)
+                    chk, _ = check_simple_format(f.value)
+                    if not chk:
+                        warningfield = True
+
+                        validation["details"].append(
+                            {
+                                "level": "Error",
+                                "message": "Invalid date format on field "
+                                + segment_id
+                                + "."
+                                + f.name,
+                            }
+                        )
+
             except Exception as e:
-                print(e)
+                #  print(e)
                 warningfield = True
                 counter -= 1
             class_ = "note"
@@ -246,8 +349,8 @@ def highlight_message(msg, validation):
                 counter += 1
 
                 if counter > max_field or warningfield:
-                    print(counter, max_field)
-                    print("error on", field)
+                    #  print(counter, max_field)
+                    #  print("error on", field)
                     class_ = "note error"
             if segment_id == "MSH" and idx == 0:
                 newseg += (

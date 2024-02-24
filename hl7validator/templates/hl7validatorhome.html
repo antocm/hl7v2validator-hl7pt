@@ -85,7 +85,8 @@
         <tbody>
         {% for foo in result %}
         <tr >
-            <th scope="row">{{foo["index"]}}</th>
+            <th scope="row">{{loop.index}}</th>
+
             <td class="{{foo["level"]}}level">{{ foo["level"] }}</td>
             <td>{{ foo["message"] }}</td>
 
