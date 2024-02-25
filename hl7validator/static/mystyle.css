@@ -85,6 +85,11 @@ text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 .RXD{background-color: #9b9a9b}
 .MSA{background-color: #e2c2f2}
 
+.MFI{background-color: #e4f2c2}
+.MFE{background-color: #9b9a9b}
+.STF{background-color: #e2c2f2}
+.PRA{background-color: #ebebeb}
+
 
 .span-group {
   display: inline-block; /* Allows the group to flow inline but respect block styling */

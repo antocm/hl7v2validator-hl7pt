@@ -31,6 +31,33 @@ class resultMessage:
         self.details = ""
 
 
+def set_reference(setmsg):
+    if "|ADT^A04|" in setmsg:
+        return setmsg.replace("|ADT^A04|", "|ADT^A04^ADT_A01|")
+        if "|ADT^A08|" in setmsg:
+            return setmsg.replace("|ADT^A08|", "|ADT^A08^ADT_A01|")
+    if "|ADT^A13|" in setmsg:
+        return setmsg.replace("|ADT^A13|", "|ADT^A13^ADT_A01|")
+    if "|ADT^A07|" in setmsg:
+        return setmsg.replace("|ADT^A07|", "|ADT^A07^ADT_A06|")
+    if "|ADT^A07|" in setmsg:
+        return setmsg.replace("|ADT^A07|", "|ADT^A07^ADT_A06|")
+    if "|ADT^A14|" in setmsg:
+        return setmsg.replace("|ADT^A14|", "|ADT^A14^ADT_A05|")
+    if "|ADT^A28|" in setmsg:
+        return setmsg.replace("|ADT^A28|", "|ADT^A28^ADT_A05|")
+    if "|ADT^A31|" in setmsg:
+        return setmsg.replace("|ADT^A31|", "|ADT^A31^ADT_A05|")
+
+    if "|ADT^A10|" in setmsg:
+        return setmsg.replace("|ADT^A10|", "|ADT^A10^ADT_A09|")
+    if "|ADT^A11|" in setmsg:
+        return setmsg.replace("|ADT^A11|", "|ADT^A11^ADT_A09|")
+    if "|ADT^A12|" in setmsg:
+        return setmsg.replace("|ADT^A12|", "|ADT^A12^ADT_A09|")
+    return setmsg
+
+
 def check_simple_format(value):
     # Define pattern for checking the format
     date_pattern = r"\d{4}(\d{2}(\d{2})?)?"
@@ -178,11 +205,12 @@ def hl7validatorapi(msg):
     error = False
     setmsg = set_message_to_validate(msg)
     try:
-        hl7version = parse_message(setmsg).version
-        msh_9 = parse_message(setmsg).msh.msh_9.value
+        parsed_msg = parse_message(setmsg)
+        hl7version = parsed_msg.version
+        msh_9 = parsed_msg.msh.msh_9.value
         print(msh_9)
         message = "Message v" + hl7version + " Valid"
-        msh_18 = parse_message(setmsg).msh.msh_18.value
+        msh_18 = parsed_msg.msh.msh_18.value
     except Exception as err:
         app.logger.error(
             "Not able to parse message: {} ----> ERROR {}".format(msg, err)
@@ -207,18 +235,16 @@ def hl7validatorapi(msg):
             )
 
     try:
-        # print(msg)
-        app.logger.info(
-            "Validating this message after transformation: {}".format(setmsg)
-        )
-        parse_message(setmsg, find_groups=True).validate(
-            report_file="report.txt",
-        )
+        ### if i used parsed_msg returns error on report creation for some messages....dont know why
+        parse_message(setmsg).validate(report_file="report.txt")
 
     except Exception as err:
-        app.logger.error(
-            "Strange error with message: {} ----> ERROR {}".format(msg, err)
-        )
+        app.logger.error("Error Creating Report: {}".format(err))
+        if "reference" in str(err):
+            resultmessage.statusCode = "Failed"
+            resultmessage.hl7version = hl7version
+            resultmessage.message = "[Error parsing message] Error on detecting message structure. Check MSH9"
+            return resultmessage.__dict__
 
     details, error = read_report("report.txt", details, error)
 
