@@ -117,3 +117,6 @@ report.html
 
 assets/
 logs/
+
+*debug.txt
+*debug.py

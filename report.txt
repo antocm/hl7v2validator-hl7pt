@@ -1,0 +1,1 @@
+Warning: Value EDQM not in table HL70396 in element RXR_1.CE_3

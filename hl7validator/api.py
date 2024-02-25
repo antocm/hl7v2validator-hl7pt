@@ -1,4 +1,4 @@
-from hl7apy.parser import parse_message
+from hl7apy.parser import parse_message, parse_field
 from hl7apy import parser, utils
 from hl7apy.exceptions import (
     UnsupportedVersion,
@@ -31,11 +31,17 @@ class resultMessage:
         self.details = ""
 
 
-def set_reference(setmsg):
+def set_reference(setmsg, hl7version):
+    if hl7version in [
+        "2.1",
+        "2.2",
+        "2.3",
+    ]:  # not msh9.3
+        return setmsg
     if "|ADT^A04|" in setmsg:
         return setmsg.replace("|ADT^A04|", "|ADT^A04^ADT_A01|")
-        if "|ADT^A08|" in setmsg:
-            return setmsg.replace("|ADT^A08|", "|ADT^A08^ADT_A01|")
+    if "|ADT^A08|" in setmsg:
+        return setmsg.replace("|ADT^A08|", "|ADT^A08^ADT_A01|")
     if "|ADT^A13|" in setmsg:
         return setmsg.replace("|ADT^A13|", "|ADT^A13^ADT_A01|")
     if "|ADT^A07|" in setmsg:
@@ -182,12 +188,16 @@ def read_report(report, details, error):
             if level == "Error":
                 error = True
             print(level, message_level)
-            details.append(
-                {
-                    "level": level,
-                    "message": message_level,
-                }
-            )
+            if {
+                "level": level,
+                "message": message_level,
+            } not in details:
+                details.append(
+                    {
+                        "level": level,
+                        "message": message_level,
+                    }
+                )
     os.remove(report)
 
     return details, error
@@ -199,6 +209,7 @@ def hl7validatorapi(msg):
     custom_chars = define_custom_chars(msg)
     details = []
     status = "Success"
+    msh_18 = "ASCII"
     hl7version = None
     if not msg:
         abort(404)
@@ -207,10 +218,9 @@ def hl7validatorapi(msg):
     try:
         parsed_msg = parse_message(setmsg)
         hl7version = parsed_msg.version
-        msh_9 = parsed_msg.msh.msh_9.value
-        print(msh_9)
+        msh_9 = parsed_msg.msh.msh_9
+
         message = "Message v" + hl7version + " Valid"
-        msh_18 = parsed_msg.msh.msh_18.value
     except Exception as err:
         app.logger.error(
             "Not able to parse message: {} ----> ERROR {}".format(msg, err)
@@ -220,12 +230,17 @@ def hl7validatorapi(msg):
         resultmessage.hl7version = hl7version
         resultmessage.message = "[Error parsing message] " + str(err)
         return resultmessage.__dict__
-    if msh_9 == "":
+    try:
+        msh_18 = parsed_msg.msh.msh_18.value
+    except:
+        pass
+    if msh_9.value == "":
         resultmessage.statusCode = "Failed"
         resultmessage.hl7version = hl7version
         resultmessage.message = "[Error parsing message] No MSH9"
         return resultmessage.__dict__
-    if msh_18 == "ASCII" or msh_18 == "":
+
+    if msh_18 == "ASCII":
         if not setmsg.isascii():
             details.append(
                 {
@@ -236,18 +251,31 @@ def hl7validatorapi(msg):
 
     try:
         ### if i used parsed_msg returns error on report creation for some messages....dont know why
-        parse_message(setmsg).validate(report_file="report.txt")
+        parse_message(set_reference(setmsg, hl7version)).validate(
+            report_file="report.txt"
+        )
 
     except Exception as err:
         app.logger.error("Error Creating Report: {}".format(err))
         if "reference" in str(err):
             resultmessage.statusCode = "Failed"
             resultmessage.hl7version = hl7version
-            resultmessage.message = "[Error parsing message] Error on detecting message structure. Check MSH9"
+            resultmessage.message = "[Error parsing message] Error on detecting message structure. Try changing MSH-9.3"
             return resultmessage.__dict__
 
     details, error = read_report("report.txt", details, error)
 
+    for seg in parse_message(setmsg).children:
+        try:
+            seg.validate(report_file="report.txt")
+
+        except Exception as e:
+            details, error = read_report("report.txt", details, error)
+        for child in seg.children:
+            try:
+                child.validate(report_file="report.txt")
+            except Exception as e:
+                details, error = read_report("report.txt", details, error)
     if error:
         status = "Failed"
         message = "Message v" + hl7version + " not valid"
@@ -332,9 +360,11 @@ def highlight_message(msg, validation):
             try:
                 f = Field(segment_id + "_" + str(idx + add), version=hl7version)
                 f.value = field
-                field_name = f.long_name.replace("_", " ").lower().title()
-                f.validate()
-                if f.datatype == "DTM" and f.value != "":  # check date format
+                if f.value == "123":
+                    print(f.datatype)
+                if (
+                    f.datatype == "DTM" or f.datatype == "TS"
+                ) and f.value != "":  # check date format
                     print(f.value)
                     chk, _ = check_format(f.value)
                     if not chk:
@@ -349,12 +379,12 @@ def highlight_message(msg, validation):
                                 + f.name,
                             }
                         )
+
                 if f.datatype == "DT" and f.value != "":  # check date format
-                    print(f.value)
+                    # print(f.value)
                     chk, _ = check_simple_format(f.value)
                     if not chk:
                         warningfield = True
-
                         validation["details"].append(
                             {
                                 "level": "Error",
@@ -364,11 +394,16 @@ def highlight_message(msg, validation):
                                 + f.name,
                             }
                         )
-
+                field_name = f.long_name.replace("_", " ").lower().title()
+                # print(f.value)
+                # print(f.datatype)
+                f.validate()
+                # print(f, f.datatype, f.value, f.long_name, f.name, f.position)
             except Exception as e:
-                #  print(e)
+                print("exp", e)
                 warningfield = True
                 counter -= 1
+
             class_ = "note"
             if field != "":
                 # print(field != "", field)
