@@ -1,32 +1,30 @@
-name: Test API
-on:
-    pull_request:
-        branches:
-            - main
-    push:
-        branches:
-        - main
+name: Python package
+
+on: [push]
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: ./
-        strategy:
-            matrix:
-                python-version: [3.11]
-        steps:
-            - uses: actions/checkout@v3
-            - name: Set up Python
-              uses: actions/setup-python@v4
-              with:
-                  python-version: ${(matrix.python-version}}
-            - name: Install Dependencies
-              run: |
-                    python-n pip install-upgrade pip
-                    pip install-r requirements. txt
-            - name: Test App code
-              run: |
-                    pytest -v
-                    pytest 
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["pypy3.9", "pypy3.10", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      # You can test your matrix by printing the current Python versio
+      - name: Install Dependencies
+        run: |
+            python-n pip install-upgrade pip
+            pip install-r requirements. txt
+
+      - name: Display Python version
+        run: |
+            pytest -v
+            pytest 
+        
+
