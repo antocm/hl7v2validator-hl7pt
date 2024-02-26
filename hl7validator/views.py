@@ -33,12 +33,14 @@ def home():
             print(validation)
             if validation["hl7version"]:
                 parsed_message, validation = highlight_message(msg, validation)
-            #   print(parsed_message)
+                #   print(parsed_message)
+            details = sorted(validation["details"], key=lambda d: list(d.values())[0])
+
             return render_template(
                 "hl7validatorhome.html",
                 title=validation["message"],
                 msg=msg,
-                result=validation["details"],
+                result=details,
                 version=VERSION,
                 hl7version=validation["hl7version"],
                 parsed=parsed_message,

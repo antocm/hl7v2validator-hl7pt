@@ -275,7 +275,9 @@ def hl7validatorapi(msg):
             try:
                 child.validate(report_file="report.txt")
             except Exception as e:
-                details, error = read_report("report.txt", details, error)
+                print("seg exp", e)
+                if "reference" not in str(e):
+                    details, error = read_report("report.txt", details, error)
     if error:
         status = "Failed"
         message = "Message v" + hl7version + " not valid"
