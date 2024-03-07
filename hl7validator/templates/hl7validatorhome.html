@@ -17,7 +17,7 @@
             <img style="float:left; width:70%;" src="/static/hl7pt.png" class="rounded float-left" alt="HL7PT">
         </div>
         <div class="col-10">
-            <h1>HL7 V2 Validation Tool <a style="font-size:x-small">Version: {{version}}</a></h1>
+            <h1>Validator HL7 V2 <a style="font-size:x-small">Versão: {{version}}</a></h1>
         </div>
 
     </div>
@@ -25,7 +25,7 @@
     <form method="POST" role="form">
         <div class="form-group">
             <label for="exampleFormControlTextarea1">
-                <h3>Use this form to validate your HL7 content</h3>
+                <h3>Usa o formulário abaixo para validar uma mensagem HL7 v2 ou converter para CSV</h3>
             </label>
 
             <div class="row align-items-center">
@@ -34,17 +34,16 @@
                     V2</label></div>
                
                 <div class="col-lg-3">
-                    <label class="radio-inline"><input type="radio" name="options" value="converter"> HL7 V2 Converter
-                        to CSV</label>
+                    <label class="radio-inline"><input type="radio" name="options" value="converter">Converter HL7 V2 para CSV</label>
                 </div>
             </div>
             <textarea class="form-control" id="exampleFormControlTextarea1" name="msg" rows="7">{{ msg }}</textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-        <button type="button" class="btn btn-secondary" onclick="clearContent()">Clear Content</button>
-        <p>Want to use this as an api? check <a href="/apidocs">here</a>. 
+        <button type="submit" class="btn btn-primary">Submeter</button>
+        <button type="button" class="btn btn-secondary" onclick="clearContent()">Apagar</button>
+        <p>Usar como API? ver <a href="/apidocs">aqui</a>. 
             <br>
-            Found any errors? Please send email to <a href="mailto:tech@hl7.pt">tech [at] hl7.pt</a></p>
+            Algum erro detetado? Por favor enviar email para <a href="mailto:tech@hl7.pt">tech [at] hl7.pt</a></p>
 
     </form>
     <br>
@@ -56,13 +55,13 @@
 
         <p>
           <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-            Click to see parsed message
+            Clicar para ver mensagem estruturada
           </a>
         </p>
         <div class="collapse" id="collapseExample">
           <div class="card card-body">
             {% if hl7version %}
-            <p>For more info on the, check <a href="https://hl7-definition.caristix.com/v2/HL7v{{hl7version}}" target="_blank"> the {{hl7version}} spec here</a>. Or click with Segment to see the Segment Spec.</p>
+            <p>Para mais informações, ver a especificação <a href="https://hl7-definition.caristix.com/v2/HL7v{{hl7version}}" target="_blank"> da versão {{hl7version}} aqui</a>. Ou Clica no identificador do segmento para ver a especificação.</p>
             {% endif %}
             {{parsed|safe}}
 
