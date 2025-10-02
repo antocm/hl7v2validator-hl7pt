@@ -1,0 +1,88 @@
+# Portuguese translations for HL7 Validator.
+# Copyright (C) 2025 HL7 Portugal
+# This file is distributed under the same license as the HL7 Validator project.
+# FIRST AUTHOR <geral@hl7.pt>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: HL7 Validator 1.0.0\n"
+"Report-Msgid-Bugs-To: tech@hl7.pt\n"
+"POT-Creation-Date: 2025-10-02 12:00+0000\n"
+"PO-Revision-Date: 2025-10-02 12:00+0000\n"
+"Last-Translator: HL7 Portugal <geral@hl7.pt>\n"
+"Language: pt\n"
+"Language-Team: Portuguese\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel\n"
+
+#: hl7validator/templates/hl7validatorhome.html:6
+msgid "HL7 Validator"
+msgstr "Validador HL7"
+
+#: hl7validator/templates/hl7validatorhome.html:39
+msgid "HL7 V2 Validator"
+msgstr "Validador HL7 V2"
+
+#: hl7validator/templates/hl7validatorhome.html:39
+msgid "Version"
+msgstr "Versão"
+
+#: hl7validator/templates/hl7validatorhome.html:52
+msgid "Use the form below to validate an HL7 v2 message or convert to CSV"
+msgstr "Usa o formulário abaixo para validar uma mensagem HL7 v2 ou converter para CSV"
+
+#: hl7validator/templates/hl7validatorhome.html:58
+msgid "HL7 V2"
+msgstr "HL7 V2"
+
+#: hl7validator/templates/hl7validatorhome.html:64
+msgid "Convert HL7 V2 to CSV"
+msgstr "Converter HL7 V2 para CSV"
+
+#: hl7validator/templates/hl7validatorhome.html:70
+msgid "Submit"
+msgstr "Submeter"
+
+#: hl7validator/templates/hl7validatorhome.html:71
+msgid "Clear"
+msgstr "Apagar"
+
+#: hl7validator/templates/hl7validatorhome.html:72
+msgid "Use as API? See"
+msgstr "Usar como API? ver"
+
+#: hl7validator/templates/hl7validatorhome.html:72
+#: hl7validator/templates/hl7validatorhome.html:92
+msgid "here"
+msgstr "aqui"
+
+#: hl7validator/templates/hl7validatorhome.html:74
+msgid "Detected an error? Please send email to"
+msgstr "Algum erro detetado? Por favor enviar email para"
+
+#: hl7validator/templates/hl7validatorhome.html:86
+msgid "Click to view structured message"
+msgstr "Clicar para ver mensagem estruturada"
+
+#: hl7validator/templates/hl7validatorhome.html:92
+msgid "For more information, see the specification"
+msgstr "Para mais informações, ver a especificação"
+
+#: hl7validator/templates/hl7validatorhome.html:92
+msgid "of version"
+msgstr "da versão"
+
+#: hl7validator/templates/hl7validatorhome.html:92
+msgid "Or click on the segment identifier to view the specification"
+msgstr "Ou Clica no identificador do segmento para ver a especificação"
+
+#: hl7validator/templates/hl7validatorhome.html:110
+msgid "Level"
+msgstr "Nível"
+
+#: hl7validator/templates/hl7validatorhome.html:111
+msgid "Message"
+msgstr "Mensagem"

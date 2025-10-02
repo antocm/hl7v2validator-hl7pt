@@ -1,4 +1,5 @@
 Flask
+Flask-Babel
 hl7apy
 requests
 gunicorn
