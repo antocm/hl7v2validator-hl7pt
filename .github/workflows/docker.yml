@@ -19,12 +19,18 @@ jobs:
         echo "commit-sha=${{ github.sha }}" >> $GITHUB_SHA
  #   - name: Set up Docker Buildx
   #    uses: docker/setup-buildx-action@v2
+    - name: Compile translations
+      run: |
+        pip install Flask-Babel
+        pybabel compile -d hl7validator/translations || true
+
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         name: ${{ secrets.DOCKER_USERNAME }}/hl7v2-validator
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
+        dockerfile: docker/Dockerfile
         tags: "latest"
      #   platforms: linux/amd64,linux/arm64
      #   cache: ${{ github.event_name != 'schedule' }}

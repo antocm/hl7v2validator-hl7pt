@@ -1,13 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ g.current_lang }}">
 
 <head>
     <meta charset="UTF-8">
-    <title>HL7 Validator</title>
+    <title>{{ _('HL7 Validator') }}</title>
     <link href="/static/bootstrap.min.css" rel="stylesheet" media="screen">
-
     <link href="/static/mystyle.css" rel="stylesheet" media="screen">
-
+    <style>
+        .language-selector {
+            float: right;
+            margin-top: 20px;
+        }
+        .language-selector a {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .language-selector a:hover {
+            background-color: #0056b3;
+        }
+        .language-selector a.active {
+            background-color: #28a745;
+        }
+    </style>
 </head>
 
 <body>
@@ -16,34 +35,43 @@
         <div class="col-2">
             <img style="float:left; width:70%;" src="/static/hl7pt.png" class="rounded float-left" alt="HL7PT">
         </div>
-        <div class="col-10">
-            <h1>Validator HL7 V2 <a style="font-size:x-small">Versão: {{version}}</a></h1>
+        <div class="col-8">
+            <h1>{{ _('HL7 V2 Validator') }} <a style="font-size:x-small">{{ _('Version') }}: {{version}}</a></h1>
         </div>
-
+        <div class="col-2">
+            <div class="language-selector">
+                <a href="{{ url_for('set_language', language='en') }}" class="{% if g.current_lang == 'en' %}active{% endif %}" title="English">EN</a>
+                <a href="{{ url_for('set_language', language='pt') }}" class="{% if g.current_lang == 'pt' %}active{% endif %}" title="Português">PT</a>
+            </div>
+        </div>
     </div>
 
     <form method="POST" role="form">
         <div class="form-group">
             <label for="exampleFormControlTextarea1">
-                <h3>Usa o formulário abaixo para validar uma mensagem HL7 v2 ou converter para CSV</h3>
+                <h3>{{ _('Use the form below to validate an HL7 v2 message or convert to CSV') }}</h3>
             </label>
 
             <div class="row align-items-center">
-                <div class="col-lg-2 "><label class="radio-inline"><input type="radio" name="options" value="hl7v2"
-                                                                          checked> HL7
-                    V2</label></div>
-               
+                <div class="col-lg-2 ">
+                    <label class="radio-inline">
+                        <input type="radio" name="options" value="hl7v2" checked> {{ _('HL7 V2') }}
+                    </label>
+                </div>
+
                 <div class="col-lg-3">
-                    <label class="radio-inline"><input type="radio" name="options" value="converter">Converter HL7 V2 para CSV</label>
+                    <label class="radio-inline">
+                        <input type="radio" name="options" value="converter">{{ _('Convert HL7 V2 to CSV') }}
+                    </label>
                 </div>
             </div>
             <textarea class="form-control" id="exampleFormControlTextarea1" name="msg" rows="7">{{ msg }}</textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Submeter</button>
-        <button type="button" class="btn btn-secondary" onclick="clearContent()">Apagar</button>
-        <p>Usar como API? ver <a href="/apidocs">aqui</a>. 
+        <button type="submit" class="btn btn-primary">{{ _('Submit') }}</button>
+        <button type="button" class="btn btn-secondary" onclick="clearContent()">{{ _('Clear') }}</button>
+        <p>{{ _('Use as API? See') }} <a href="/apidocs">{{ _('here') }}</a>.
             <br>
-            Algum erro detetado? Por favor enviar email para <a href="mailto:tech@hl7.pt">tech [at] hl7.pt</a></p>
+            {{ _('Detected an error? Please send email to') }} <a href="mailto:tech@hl7.pt">tech [at] hl7.pt</a></p>
 
     </form>
     <br>
@@ -55,13 +83,13 @@
 
         <p>
           <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-            Clicar para ver mensagem estruturada
+            {{ _('Click to view structured message') }}
           </a>
         </p>
         <div class="collapse" id="collapseExample">
           <div class="card card-body">
             {% if hl7version %}
-            <p>Para mais informações, ver a especificação <a href="https://hl7-definition.caristix.com/v2/HL7v{{hl7version}}" target="_blank"> da versão {{hl7version}} aqui</a>. Ou Clica no identificador do segmento para ver a especificação.</p>
+            <p>{{ _('For more information, see the specification') }} <a href="https://hl7-definition.caristix.com/v2/HL7v{{hl7version}}" target="_blank"> {{ _('of version') }} {{hl7version}} {{ _('here') }}</a>. {{ _('Or click on the segment identifier to view the specification') }}.</p>
             {% endif %}
             {{parsed|safe}}
 
@@ -70,7 +98,7 @@
 
       <br>
     {% endif %}
-   
+
 
     {% if result %}
 
@@ -79,8 +107,8 @@
         <tr>
             <th scope="col">#</th>
 
-            <th scope="col">Level</th>
-            <th scope="col">Message</th>
+            <th scope="col">{{ _('Level') }}</th>
+            <th scope="col">{{ _('Message') }}</th>
 
         </tr>
         </thead>

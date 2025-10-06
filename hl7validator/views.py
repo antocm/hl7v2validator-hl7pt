@@ -5,7 +5,10 @@ from flask import (
     jsonify,
     send_from_directory,
     abort,
+    session,
+    g,
 )
+from flask_babel import gettext, get_locale
 import os
 from hl7validator.api import hl7validatorapi, from_hl7_to_df, highlight_message
 from hl7validator import app
@@ -14,14 +17,35 @@ from hl7validator import app
 VERSION = "1.0.0"
 
 
+@app.before_request
+def before_request():
+    """Store current language in g for templates"""
+    g.current_lang = str(get_locale())
+
+
+@app.route("/set_language/<language>")
+def set_language(language):
+    """Allow users to manually select language"""
+    if language in app.config['LANGUAGES']:
+        session['language'] = language
+    # Redirect to the referrer or home page
+    return redirect(request.referrer or '/')
+
+
 @app.route("/docs", methods=["GET"])
 def redirection():
     return redirect("/apidocs")
 
 
 @app.route("/", methods=["GET", "POST"])
+@app.route("/<lang>", methods=["GET", "POST"])
 @app.route("/hl7validator", methods=["GET", "POST"])
-def home():
+@app.route("/<lang>/hl7validator", methods=["GET", "POST"])
+def home(lang=None):
+    # Set language from URL if provided
+    if lang and lang in app.config['LANGUAGES']:
+        session['language'] = lang
+
     parsed_message = None
     if request.method == "POST":
         req = request.form.get("options")

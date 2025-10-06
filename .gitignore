@@ -47,7 +47,8 @@ coverage.xml
 .pytest_cache/
 
 # Translations
-*.mo
+# NOTE: *.mo files are needed for runtime, so we DON'T exclude them
+# *.mo
 *.pot
 
 # Django stuff:
@@ -120,3 +121,14 @@ logs/
 
 *debug.txt
 *debug.py
+
+# Docker - All Docker files now in docker/ directory
+# Ignore if someone accidentally creates them in root
+/Dockerfile
+/gunicorn.sh
+/docker-compose.yml
+/.dockerignore
+
+# Environment files
+docker/.env
+!docker/.env.example

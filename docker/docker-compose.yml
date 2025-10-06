@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  hl7validator:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: hl7validator:latest
+    container_name: hl7validator
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-80}:80"
+    environment:
+      # Security - Set a strong secret key in production
+      - SECRET_KEY=${SECRET_KEY:-change-this-in-production}
+
+      # Gunicorn configuration
+      - GUNICORN_WORKERS=${GUNICORN_WORKERS:-2}
+      - GUNICORN_THREADS=${GUNICORN_THREADS:-2}
+      - GUNICORN_BIND=${GUNICORN_BIND:-0.0.0.0:80}
+      - GUNICORN_LOG_LEVEL=${GUNICORN_LOG_LEVEL:-info}
+
+      # Application configuration
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - BABEL_DEFAULT_LOCALE=${BABEL_DEFAULT_LOCALE:-en}
+
+    volumes:
+      # Persist logs outside container
+      - ./logs:/app/logs
+
+      # Optional: Mount translations for development
+      # - ../hl7validator/translations:/app/hl7validator/translations:ro
+
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:80/').read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+    networks:
+      - hl7validator-network
+
+    labels:
+      - "com.hl7validator.description=HL7 V2 Message Validator and Converter"
+      - "com.hl7validator.version=1.0.0"
+
+networks:
+  hl7validator-network:
+    driver: bridge
+
+volumes:
+  hl7validator-logs:
+    driver: local
