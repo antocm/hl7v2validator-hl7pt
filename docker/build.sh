@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 # Configuration
 IMAGE_NAME="${IMAGE_NAME:-hl7validator}"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
-DOCKERFILE_PATH="docker/Dockerfile"
+DOCKERFILE_PATH="Dockerfile"
 BUILD_CONTEXT=".."
 PLATFORM="${PLATFORM:-linux/amd64}"
 

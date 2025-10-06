@@ -32,7 +32,7 @@ msgstr "Versão"
 
 #: hl7validator/templates/hl7validatorhome.html:52
 msgid "Use the form below to validate an HL7 v2 message or convert to CSV"
-msgstr "Usa o formulário abaixo para validar uma mensagem HL7 v2 ou converter para CSV"
+msgstr "Use o formulário abaixo para validar uma mensagem HL7 v2 ou converter para CSV"
 
 #: hl7validator/templates/hl7validatorhome.html:58
 msgid "HL7 V2"
