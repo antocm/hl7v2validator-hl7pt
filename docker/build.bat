@@ -144,6 +144,31 @@ if not errorlevel 1 (
 )
 echo.
 
+REM Build wheel package
+echo Building wheel package...
+python --version >nul 2>&1
+if errorlevel 1 (
+    echo Error: Python is not installed
+    exit /b 1
+)
+
+REM Clean previous builds
+if exist "dist" rmdir /s /q dist
+if exist "build" rmdir /s /q build
+for %%i in (*.egg-info) do if exist "%%i" rmdir /s /q "%%i"
+
+REM Install build tool and build the wheel
+python -m pip install --user --upgrade build >nul 2>&1
+python -m build --wheel
+
+if not exist "dist\*.whl" (
+    echo [ERROR] Wheel build failed
+    exit /b 1
+)
+
+for %%i in (dist\*.whl) do echo [OK] Wheel package built successfully: %%i
+echo.
+
 REM Build Docker image
 echo Building Docker image...
 echo.

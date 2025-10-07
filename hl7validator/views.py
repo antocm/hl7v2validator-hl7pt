@@ -12,9 +12,10 @@ from flask_babel import gettext, get_locale
 import os
 from hl7validator.api import hl7validatorapi, from_hl7_to_df, highlight_message
 from hl7validator import app
+from hl7validator.__version__ import __version__
 
-# http://flask.pocoo.org/docs/1.0/
-VERSION = "1.0.0"
+# Version is now managed centrally in __version__.py and pyproject.toml
+VERSION = __version__
 
 
 @app.before_request

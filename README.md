@@ -48,6 +48,7 @@ A comprehensive HL7 Version 2 message validation and conversion web service deve
 - **Disk Space**: ~100MB for dependencies
 
 ### Python Dependencies
+The application is distributed as a Python wheel package with the following dependencies:
 ```
 Flask          # Web framework
 Flask-Babel    # Internationalization and localization
@@ -58,11 +59,24 @@ flasgger       # Swagger API documentation
 pandas         # Data manipulation for CSV conversion
 ```
 
+### Build Requirements
+For building the wheel package:
+- **setuptools** >= 61.0
+- **wheel**
+- **build** (Python build tool)
+
 ## Installation & Usage
 
 ### Option 1: Docker (Recommended)
 
+The Docker build process now uses a Python wheel package for cleaner, more efficient deployments.
+
 #### Using Build Scripts
+
+The build scripts automatically:
+1. Compile translations
+2. Build Python wheel package
+3. Build Docker image with the wheel
 
 **Linux/Mac:**
 ```bash
@@ -123,6 +137,25 @@ The scripts will automatically:
 
 #### Manual Setup
 
+**Option A: Install from Wheel (Recommended)**
+```bash
+# Build the wheel package
+python3 -m pip install --upgrade build
+python3 -m build --wheel
+
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# .venv\Scripts\activate   # Windows
+
+# Install from wheel
+pip install dist/hl7validator_hl7pt-1.0.0-py3-none-any.whl
+
+# Run the application
+hl7validator
+```
+
+**Option B: Development Install**
 ```bash
 # Create virtual environment
 python3 -m venv .venv
@@ -276,7 +309,14 @@ See [test.http](test.http) for example API requests. Use REST client extensions 
 
 **Live Instance**: https://version2.hl7.pt
 
-**Version**: 0.0.4
+**Version**: 1.0.0
+
+### Building for Production
+
+The project uses `pyproject.toml` for package configuration. Version numbers are centrally managed:
+- **Source**: `pyproject.toml` (single source of truth)
+- **Runtime Access**: Available via `hl7validator.__version__`
+- **API Version**: Automatically synced with package version
 
 ## About
 

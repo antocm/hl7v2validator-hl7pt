@@ -12,7 +12,6 @@ __pycache__
 .Python
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -36,6 +35,10 @@ MANIFEST
 venv/
 env/
 ENV/
+
+# IMPORTANT: Don't ignore dist/ - we need the wheel packages!
+!dist/
+!dist/*.whl
 
 # IDEs
 .vscode/

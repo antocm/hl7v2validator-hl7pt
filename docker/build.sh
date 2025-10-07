@@ -12,11 +12,15 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Get the script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 # Configuration
 IMAGE_NAME="${IMAGE_NAME:-hl7validator}"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
-DOCKERFILE_PATH="Dockerfile"
-BUILD_CONTEXT=".."
+DOCKERFILE_PATH="$SCRIPT_DIR/Dockerfile"
+BUILD_CONTEXT="$PROJECT_ROOT"
 PLATFORM="${PLATFORM:-linux/amd64}"
 
 # Parse command line arguments
@@ -122,8 +126,8 @@ if [ ! -f "$DOCKERFILE_PATH" ]; then
 fi
 
 # Check if we're in the correct directory
-if [ ! -f "requirements.txt" ]; then
-    echo -e "${RED}Error: requirements.txt not found. Are you in the project root?${NC}"
+if [ ! -f "../requirements.txt" ]; then
+    echo -e "${RED}Error: requirements.txt not found. Are you in the docker directory?${NC}"
     exit 1
 fi
 
@@ -133,7 +137,7 @@ echo ""
 # Compile translations before building
 echo -e "${GREEN}Compiling translations...${NC}"
 if command -v pybabel &> /dev/null; then
-    pybabel compile -d hl7validator/translations 2>/dev/null || true
+    (cd "$PROJECT_ROOT" && pybabel compile -d hl7validator/translations 2>/dev/null) || true
     echo -e "${GREEN}✓ Translations compiled${NC}"
 else
     echo -e "${YELLOW}⚠ pybabel not found, skipping translation compilation${NC}"
@@ -141,30 +145,54 @@ else
 fi
 echo ""
 
+# Build wheel package
+echo -e "${GREEN}Building wheel package...${NC}"
+if command -v python3 &> /dev/null; then
+    # Clean previous builds
+    rm -rf "$PROJECT_ROOT/dist" "$PROJECT_ROOT/build" "$PROJECT_ROOT"/*.egg-info
+
+    # Build the wheel
+    (cd "$PROJECT_ROOT" && python3 -m pip install --user --upgrade build 2>/dev/null || true)
+    (cd "$PROJECT_ROOT" && python3 -m build --wheel 2>&1)
+
+    if [ -d "$PROJECT_ROOT/dist" ] && [ -n "$(ls -A $PROJECT_ROOT/dist/*.whl 2>/dev/null)" ]; then
+        echo -e "${GREEN}✓ Wheel package built successfully${NC}"
+        echo -e "${GREEN}  Package: $(ls $PROJECT_ROOT/dist/*.whl)${NC}"
+    else
+        echo -e "${RED}✗ Wheel build failed${NC}"
+        exit 1
+    fi
+else
+    echo -e "${RED}Error: Python 3 is not installed${NC}"
+    exit 1
+fi
+echo ""
+
 # Build Docker image
 echo -e "${GREEN}Building Docker image...${NC}"
 echo ""
 
-BUILD_ARGS="--file $DOCKERFILE_PATH"
-BUILD_ARGS="$BUILD_ARGS --tag $IMAGE_NAME:$IMAGE_TAG"
-BUILD_ARGS="$BUILD_ARGS --platform $PLATFORM"
+BUILD_ARGS=()
+BUILD_ARGS+=(--file "$DOCKERFILE_PATH")
+BUILD_ARGS+=(--tag "$IMAGE_NAME:$IMAGE_TAG")
+BUILD_ARGS+=(--platform "$PLATFORM")
 
 if [ "$NO_CACHE" = true ]; then
-    BUILD_ARGS="$BUILD_ARGS --no-cache"
+    BUILD_ARGS+=(--no-cache)
 fi
 
 if [ "$VERBOSE" = true ]; then
-    BUILD_ARGS="$BUILD_ARGS --progress=plain"
+    BUILD_ARGS+=(--progress=plain)
 fi
 
 # Add build metadata
-BUILD_ARGS="$BUILD_ARGS --label org.opencontainers.image.created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-BUILD_ARGS="$BUILD_ARGS --label org.opencontainers.image.version=$IMAGE_TAG"
-BUILD_ARGS="$BUILD_ARGS --label org.opencontainers.image.title=HL7 V2 Validator"
-BUILD_ARGS="$BUILD_ARGS --label org.opencontainers.image.description=HL7 Version 2 Message Validator and Converter"
+BUILD_ARGS+=(--label "org.opencontainers.image.created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')")
+BUILD_ARGS+=(--label "org.opencontainers.image.version=$IMAGE_TAG")
+BUILD_ARGS+=(--label "org.opencontainers.image.title=HL7 V2 Validator")
+BUILD_ARGS+=(--label "org.opencontainers.image.description=HL7 Version 2 Message Validator and Converter")
 
 # Execute build
-if docker build $BUILD_ARGS $BUILD_CONTEXT; then
+if docker build "${BUILD_ARGS[@]}" "$BUILD_CONTEXT"; then
     echo ""
     echo -e "${GREEN}========================================${NC}"
     echo -e "${GREEN}✓ Build successful!${NC}"

@@ -4,16 +4,34 @@ This directory contains all Docker-related files for building and deploying the 
 
 ## Contents
 
-- **Dockerfile** - Multi-stage production-ready Docker image
+- **Dockerfile** - Production-ready Docker image using Python wheel package
 - **docker-compose.yml** - Docker Compose configuration
 - **gunicorn.sh** - Gunicorn startup script with configurable parameters
-- **build.sh** - Build script for Linux/Mac
-- **build.bat** - Build script for Windows
+- **build.sh** - Build script for Linux/Mac (includes wheel building)
+- **build.bat** - Build script for Windows (includes wheel building)
 - **.env.example** - Example environment variables
+
+## Build Process
+
+The Docker build process has been optimized to use Python wheel packages:
+
+1. **Wheel Building**: The build scripts first create a Python wheel package from `pyproject.toml`
+2. **Docker Build**: The Dockerfile then copies and installs the wheel in the container
+3. **Benefits**:
+   - Cleaner dependencies management
+   - Faster Docker builds (no source compilation in container)
+   - Better caching
+   - Easier versioning
 
 ## Quick Start
 
 ### Option 1: Using Build Scripts (Recommended)
+
+The build scripts automatically:
+1. Compile translations (if pybabel is available)
+2. Build the Python wheel package from `pyproject.toml`
+3. Build the Docker image using the wheel
+4. Optionally push to registry
 
 #### Linux/Mac
 
@@ -21,7 +39,7 @@ This directory contains all Docker-related files for building and deploying the 
 # Make script executable
 chmod +x docker/build.sh
 
-# Build the image
+# Build the image (includes wheel building)
 cd docker
 ./build.sh
 
@@ -41,7 +59,7 @@ cd docker
 # Navigate to docker directory
 cd docker
 
-# Build the image
+# Build the image (includes wheel building)
 build.bat
 
 # Build with custom tag
@@ -78,8 +96,14 @@ docker-compose down
 
 ### Option 3: Direct Docker Commands
 
+**Note**: When building manually, you must first build the wheel package:
+
 ```bash
-# Build from project root
+# From project root, build the wheel first
+python3 -m pip install --upgrade build
+python3 -m build --wheel
+
+# Then build Docker image
 docker build -f docker/Dockerfile -t hl7validator:latest .
 
 # Run
@@ -297,7 +321,7 @@ cd docker
 cp .env.example .env
 nano .env  # Update SECRET_KEY and other settings
 
-# 3. Build image
+# 3. Build image (automatically builds wheel first)
 ./build.sh --tag production --no-cache
 
 # 4. Start with docker-compose
@@ -307,6 +331,19 @@ docker-compose up -d
 curl http://localhost/
 docker-compose logs -f
 ```
+
+### Version Management
+
+The application version is centrally managed in `pyproject.toml`:
+- **Package Version**: Defined in `pyproject.toml`
+- **Runtime Access**: `from hl7validator.__version__ import __version__`
+- **API Documentation**: Version automatically synced to Swagger docs
+- **Docker Label**: Build scripts add version as OCI label
+
+To update the version:
+1. Edit version in `pyproject.toml`
+2. Rebuild the wheel and Docker image
+3. The new version propagates to all components
 
 ### Using with Reverse Proxy
 
