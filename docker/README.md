@@ -25,6 +25,15 @@ The Docker build process has been optimized to use Python wheel packages:
 
 ## Quick Start
 
+**Fastest way to get started**:
+```bash
+git clone https://github.com/hl7pt/hl7v2validator-hl7pt.git
+cd hl7v2validator-hl7pt/docker
+./build.sh
+docker run -p 80:80 hl7validator:v1.2.0
+```
+Visit http://localhost
+
 ### Option 1: Using Build Scripts (Recommended)
 
 The build scripts automatically:
@@ -44,10 +53,13 @@ cd docker
 ./build.sh
 
 # Build with custom tag
-./build.sh --tag v1.0.0
+./build.sh --tag v1.2.0
+
+# Build with latest tag
+./build.sh --tag latest
 
 # Build and push to registry
-./build.sh --tag v1.0.0 --push
+./build.sh --tag v1.2.0 --push
 
 # Build without cache
 ./build.sh --no-cache
@@ -63,10 +75,13 @@ cd docker
 build.bat
 
 # Build with custom tag
-build.bat --tag v1.0.0
+build.bat --tag v1.2.0
+
+# Build with latest tag
+build.bat --tag latest
 
 # Build and push to registry
-build.bat --tag v1.0.0 --push
+build.bat --tag v1.2.0 --push
 
 # Build without cache
 build.bat --no-cache
@@ -125,7 +140,7 @@ docker run -d -p 80:80 --name hl7validator hl7validator:latest
 
 | Option | Description | Example |
 |--------|-------------|---------|
-| `--tag TAG` | Set image tag | `--tag v1.0.0` |
+| `--tag TAG` | Set image tag (default: v{version} from pyproject.toml) | `--tag v1.2.0` |
 | `--name NAME` | Set image name | `--name myregistry/hl7validator` |
 | `--platform PLATFORM` | Target platform | `--platform linux/arm64` |
 | `--push` | Push to registry after build | `--push` |
@@ -133,20 +148,28 @@ docker run -d -p 80:80 --name hl7validator hl7validator:latest
 | `--verbose, -v` | Verbose output | `--verbose` |
 | `--help, -h` | Show help | `--help` |
 
+**Note**: The build script automatically extracts the version from `pyproject.toml` and uses it as the default tag (e.g., `v1.2.0`).
+
 ### Examples
 
 ```bash
-# Build for production with version tag
-./build.sh --tag v1.0.0 --no-cache
+# Build with auto-versioning (uses v1.2.0 from pyproject.toml)
+./build.sh
 
-# Build for ARM architecture
-./build.sh --platform linux/arm64 --tag arm64-latest
+# Build for production with specific version tag and no cache
+./build.sh --tag v1.2.0 --no-cache
+
+# Build and tag as 'latest' for convenience
+./build.sh --tag latest
+
+# Build for ARM architecture (e.g., Raspberry Pi, Apple Silicon)
+./build.sh --platform linux/arm64 --tag v1.2.0-arm64
 
 # Build and push to Docker Hub
 ./build.sh --name username/hl7validator --tag latest --push
 
-# Build for multiple architectures
-./build.sh --platform linux/amd64,linux/arm64 --tag multi-arch
+# Build for multiple architectures and push
+./build.sh --platform linux/amd64,linux/arm64 --tag v1.2.0 --push
 ```
 
 ## Environment Variables
@@ -264,7 +287,7 @@ Mount to persist:
 
 ```bash
 # Docker run
-docker run -v ./logs:/app/logs hl7validator:latest
+docker run -v ./logs:/app/logs hl7validator:v1.2.0
 
 # Docker compose (already configured)
 volumes:
@@ -273,10 +296,23 @@ volumes:
 
 ### Translations (Development)
 
-Mount translations directory for development:
+**Important**: The build script automatically compiles translations before building the Docker image, so .mo files are already included.
+
+For development/testing with live translation updates, mount the translations directory:
 
 ```bash
-docker run -v ./hl7validator/translations:/app/hl7validator/translations:ro hl7validator:latest
+# From project root
+cd ..
+
+# Update translations
+pybabel extract -F babel.cfg -o messages.pot .
+pybabel update -i messages.pot -d hl7validator/translations
+nano hl7validator/translations/pt/LC_MESSAGES/messages.po
+pybabel compile -d hl7validator/translations
+
+# Run container with mounted translations (read-only)
+docker run -v $(pwd)/hl7validator/translations:/app/hl7validator/translations:ro \
+  -p 80:80 hl7validator:v1.2.0
 ```
 
 ## Multi-Architecture Builds
@@ -335,15 +371,18 @@ docker-compose logs -f
 ### Version Management
 
 The application version is centrally managed in `pyproject.toml`:
-- **Package Version**: Defined in `pyproject.toml`
-- **Runtime Access**: `from hl7validator.__version__ import __version__`
+- **Package Version**: Defined in `pyproject.toml` (e.g., `version = "1.2.0"`)
+- **Runtime Access**: Available via `hl7validator.__version__`
 - **API Documentation**: Version automatically synced to Swagger docs
+- **Docker Tag**: Build scripts auto-tag images as `v{version}` (e.g., `v1.2.0`)
 - **Docker Label**: Build scripts add version as OCI label
 
-To update the version:
-1. Edit version in `pyproject.toml`
-2. Rebuild the wheel and Docker image
-3. The new version propagates to all components
+**To update the version**:
+1. Edit version in `pyproject.toml`: `version = "1.3.0"`
+2. Run build script: `./build.sh` (automatically creates tag `v1.3.0`)
+3. The new version propagates to all components automatically
+
+**Current version**: 1.2.0
 
 ### Using with Reverse Proxy
 
@@ -426,13 +465,21 @@ docker run --no-healthcheck hl7validator:latest
 
 ```bash
 # Verify .mo files exist in image
-docker run --rm hl7validator:latest ls -la /app/hl7validator/translations/pt/LC_MESSAGES/
+docker run --rm hl7validator:v1.2.0 ls -la /app/hl7validator/translations/pt/LC_MESSAGES/
 
-# Rebuild with translations
+# Rebuild with compiled translations
 cd ..  # Back to project root
+
+# Compile translations (build script does this automatically, but you can do it manually)
 pybabel compile -d hl7validator/translations
+
+# Rebuild Docker image - the build.sh script automatically compiles translations
 cd docker
 ./build.sh --no-cache
+
+# Test translations in the new container
+docker run -p 80:80 hl7validator:v1.2.0
+# Visit http://localhost/pt for Portuguese
 ```
 
 ### Performance Issues
@@ -502,20 +549,23 @@ docker top hl7validator
 # 1. Pull latest code
 git pull
 
-# 2. Rebuild image
-cd docker
-./build.sh --no-cache --tag v1.1.0
+# 2. Update version in pyproject.toml
+# Edit pyproject.toml and change version to desired version (e.g., 1.3.0)
 
-# 3. Stop old container
+# 3. Rebuild image (auto-detects new version)
+cd docker
+./build.sh --no-cache
+
+# 4. Stop old container
 docker-compose down
 
-# 4. Update docker-compose.yml with new tag
-# image: hl7validator:v1.1.0
+# 5. Update docker-compose.yml with new tag (if using specific version)
+# image: hl7validator:v1.3.0
 
-# 5. Start new container
+# 6. Start new container
 docker-compose up -d
 
-# 6. Verify
+# 7. Verify
 curl http://localhost/
 docker-compose logs -f
 ```
@@ -558,6 +608,77 @@ jobs:
             username/hl7validator:${{ github.ref_name }}
 ```
 
+## Quick Reference
+
+### Essential Commands
+
+| Task | Command |
+|------|---------|
+| **Build Docker image (auto-version)** | `cd docker && ./build.sh` |
+| **Build with specific tag** | `./build.sh --tag v1.2.0` |
+| **Build as latest** | `./build.sh --tag latest` |
+| **Run container** | `docker run -p 80:80 hl7validator:v1.2.0` |
+| **Run with docker-compose** | `docker-compose up -d` |
+| **View logs** | `docker logs -f hl7validator` |
+| **Stop container** | `docker stop hl7validator` |
+| **Check health** | `docker inspect --format='{{.State.Health.Status}}' hl7validator` |
+| **Compile translations manually** | `pybabel compile -d hl7validator/translations` |
+| **Rebuild with no cache** | `./build.sh --no-cache` |
+
+### Complete Workflow Examples
+
+**Example 1: Quick Build and Run**
+```bash
+cd docker
+./build.sh
+docker run -d -p 80:80 --name hl7validator hl7validator:v1.2.0
+docker logs -f hl7validator
+```
+
+**Example 2: Production Deployment with Docker Compose**
+```bash
+cd docker
+cp .env.example .env
+# Edit .env to set SECRET_KEY and other variables
+./build.sh --no-cache
+docker-compose up -d
+docker-compose logs -f
+```
+
+**Example 3: Update Translations and Rebuild**
+```bash
+# Update translations
+pybabel extract -F babel.cfg -o messages.pot .
+pybabel update -i messages.pot -d hl7validator/translations
+nano hl7validator/translations/pt/LC_MESSAGES/messages.po
+pybabel compile -d hl7validator/translations
+
+# Rebuild Docker image (build script compiles translations automatically)
+cd docker
+./build.sh --no-cache --tag v1.2.0
+
+# Deploy updated image
+docker-compose down
+docker-compose up -d
+```
+
+**Example 4: Multi-Architecture Build and Push**
+```bash
+cd docker
+./build.sh --platform linux/amd64,linux/arm64 --tag v1.2.0 --push
+```
+
+### Environment Variables Quick Reference
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `SECRET_KEY` | `change-this-in-production` | Flask session security |
+| `GUNICORN_WORKERS` | `2` | Number of worker processes |
+| `GUNICORN_THREADS` | `2` | Threads per worker |
+| `GUNICORN_BIND` | `0.0.0.0:80` | Bind address |
+| `HOST_PORT` | `80` | Host port mapping |
+| `BABEL_DEFAULT_LOCALE` | `en` | Default language (en/pt) |
+
 ## Support
 
 For issues or questions:
@@ -567,6 +688,6 @@ For issues or questions:
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-10-02
+**Version**: 1.2.0
+**Last Updated**: 2025-10-08
 **Maintainer**: HL7 Portugal

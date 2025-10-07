@@ -5,6 +5,25 @@ A comprehensive HL7 Version 2 message validation and conversion web service deve
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10+-green.svg)](https://www.python.org/)
 
+## Quick Start
+
+**Try it now (requires Docker):**
+```bash
+git clone https://github.com/hl7pt/hl7v2validator-hl7pt.git
+cd hl7v2validator-hl7pt/docker
+./build.sh
+docker run -p 80:80 hl7validator:v1.2.0
+```
+Visit http://localhost
+
+**Or run locally (requires Python 3.10+):**
+```bash
+git clone https://github.com/hl7pt/hl7v2validator-hl7pt.git
+cd hl7v2validator-hl7pt
+./run_local.sh
+```
+Visit http://localhost:5000
+
 ## Features
 
 ### Internationalization (i18n)
@@ -83,6 +102,11 @@ The build scripts automatically:
 cd docker
 chmod +x build.sh
 ./build.sh
+# The script automatically builds with version tag from pyproject.toml (e.g., v1.2.0)
+docker run -p 80:80 hl7validator:v1.2.0
+
+# Or build and tag as 'latest'
+./build.sh --tag latest
 docker run -p 80:80 hl7validator:latest
 ```
 
@@ -90,7 +114,7 @@ docker run -p 80:80 hl7validator:latest
 ```cmd
 cd docker
 build.bat
-docker run -p 80:80 hl7validator:latest
+docker run -p 80:80 hl7validator:v1.2.0
 ```
 
 #### Using Docker Compose
@@ -149,7 +173,7 @@ source .venv/bin/activate  # Linux/Mac
 # .venv\Scripts\activate   # Windows
 
 # Install from wheel
-pip install dist/hl7validator_hl7pt-1.0.0-py3-none-any.whl
+pip install dist/hl7validator_hl7pt-1.2.0-py3-none-any.whl
 
 # Run the application
 hl7validator
@@ -294,6 +318,99 @@ Application logs are stored in `logs/` directory:
 
 ## Development
 
+### Building the Package
+
+Build the Python wheel package from source:
+
+```bash
+# Install build tools
+python3 -m pip install --upgrade build
+
+# Build the wheel package
+python3 -m build --wheel
+
+# The wheel will be created in dist/hl7validator_hl7pt-1.2.0-py3-none-any.whl
+```
+
+### Complete Build and Run Examples
+
+**Example 1: Quick Local Development**
+```bash
+# Clone and run
+git clone https://github.com/hl7pt/hl7v2validator-hl7pt.git
+cd hl7v2validator-hl7pt
+./run_local.sh
+
+# Application runs on http://localhost:5000
+```
+
+**Example 2: Build Wheel and Install**
+```bash
+# Build wheel
+python3 -m build --wheel
+
+# Install in a clean environment
+python3 -m venv fresh_env
+source fresh_env/bin/activate
+pip install dist/hl7validator_hl7pt-1.2.0-py3-none-any.whl
+
+# Run the application
+hl7validator
+# Runs on http://localhost:80
+```
+
+**Example 3: Docker Build and Run**
+```bash
+# Build Docker image
+cd docker
+./build.sh --tag latest
+
+# Run container
+docker run -d \
+  -p 80:80 \
+  --name hl7validator \
+  --restart unless-stopped \
+  hl7validator:latest
+
+# View logs
+docker logs -f hl7validator
+
+# Stop and remove
+docker stop hl7validator
+docker rm hl7validator
+```
+
+**Example 4: Translation Workflow**
+```bash
+# 1. Extract strings from code
+pybabel extract -F babel.cfg -o messages.pot .
+
+# 2. Update Portuguese translations
+pybabel update -i messages.pot -d hl7validator/translations
+
+# 3. Edit translations
+nano hl7validator/translations/pt/LC_MESSAGES/messages.po
+
+# 4. Compile translations
+pybabel compile -d hl7validator/translations
+
+# 5. Test translations
+./run_local.sh
+# Visit http://localhost:5000/pt
+```
+
+**Example 5: Production Deployment with Gunicorn**
+```bash
+# Install from wheel
+pip install dist/hl7validator_hl7pt-1.2.0-py3-none-any.whl
+
+# Run with production settings
+./docker/gunicorn.sh
+
+# Or use the run script with --prod flag
+./run_local.sh --prod --port 80
+```
+
 ### Running Tests
 
 See [test.http](test.http) for example API requests. Use REST client extensions in VS Code or similar tools.
@@ -309,7 +426,7 @@ See [test.http](test.http) for example API requests. Use REST client extensions 
 
 **Live Instance**: https://version2.hl7.pt
 
-**Version**: 1.0.0
+**Version**: 1.2.0
 
 ### Building for Production
 
@@ -364,12 +481,79 @@ The application supports multiple languages with automatic detection and manual 
 2. **Manual selection**: Click EN or PT buttons in top-right corner
 3. **URL-based**: Visit `/en` or `/pt` directly
 
+### Translation Workflow
+
+**Setup and Extract Translatable Strings**:
+```bash
+# Extract strings from code (creates/updates messages.pot)
+pybabel extract -F babel.cfg -o messages.pot .
+
+# Initialize a new language (first time only)
+pybabel init -i messages.pot -d hl7validator/translations -l pt
+
+# Or update existing translations with new strings
+pybabel update -i messages.pot -d hl7validator/translations
+```
+
+**Translate**:
+Edit `hl7validator/translations/pt/LC_MESSAGES/messages.po`:
+```po
+msgid "Submit"
+msgstr "Submeter"
+
+msgid "HL7 V2 Validator"
+msgstr "Validador HL7 V2"
+```
+
+**Compile and Test**:
+```bash
+# Compile translations (creates .mo files)
+pybabel compile -d hl7validator/translations
+
+# Run the application to test
+./run_local.sh
+```
+
+**Quick Translation Setup**:
+You can also use the helper script:
+```bash
+python create_translations.py
+```
+
 **For Developers**:
 See [I18N_GUIDE.md](I18N_GUIDE.md) for:
 - Adding new languages
-- Updating translations
-- Translation workflow
-- Testing procedures
+- Complete translation workflow
+- Best practices
+- Troubleshooting
+
+## Command Reference
+
+### Quick Reference Table
+
+| Task | Command |
+|------|---------|
+| **Run locally (development)** | `./run_local.sh` |
+| **Run locally (production)** | `./run_local.sh --prod` |
+| **Build wheel package** | `python3 -m build --wheel` |
+| **Build Docker image** | `cd docker && ./build.sh` |
+| **Build Docker (latest tag)** | `cd docker && ./build.sh --tag latest` |
+| **Run Docker container** | `docker run -p 80:80 hl7validator:v1.2.0` |
+| **Extract translation strings** | `pybabel extract -F babel.cfg -o messages.pot .` |
+| **Update translations** | `pybabel update -i messages.pot -d hl7validator/translations` |
+| **Compile translations** | `pybabel compile -d hl7validator/translations` |
+| **Initialize new language** | `pybabel init -i messages.pot -d hl7validator/translations -l <lang>` |
+| **Setup translations** | `python create_translations.py` |
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `HOST` | `127.0.0.1` | Host to bind the application |
+| `PORT` | `5000` (local) / `80` (Docker) | Port number |
+| `DEBUG` | `true` | Enable Flask debug mode |
+| `SECRET_KEY` | Auto-generated | Flask session secret key (set in production) |
+| `FLASK_APP` | `run.py` | Flask application entry point |
 
 ## References
 

@@ -43,7 +43,7 @@ services:
 
     labels:
       - "com.hl7validator.description=HL7 V2 Message Validator and Converter"
-      - "com.hl7validator.version=1.0.0"
+      - "com.hl7validator.version=1.2.0"
 
 networks:
   hl7validator-network:
