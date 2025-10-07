@@ -4,9 +4,17 @@ REM This script builds the Docker container for the HL7 V2 Validator application
 
 setlocal enabledelayedexpansion
 
+REM Extract version from pyproject.toml
+for /f "tokens=2 delims==" %%a in ('findstr /r "^version" ..\pyproject.toml') do (
+    set PACKAGE_VERSION=%%a
+)
+REM Remove quotes and spaces
+set PACKAGE_VERSION=%PACKAGE_VERSION:"=%
+set PACKAGE_VERSION=%PACKAGE_VERSION: =%
+
 REM Configuration
 set IMAGE_NAME=hl7validator
-set IMAGE_TAG=latest
+set IMAGE_TAG=v%PACKAGE_VERSION%
 set DOCKERFILE_PATH=docker/Dockerfile
 set BUILD_CONTEXT=..
 set PLATFORM=linux/amd64
@@ -67,14 +75,15 @@ echo.
 echo Options:
 echo   --push              Push image to registry after build
 echo   --no-cache          Build without using cache
-echo   --tag TAG           Image tag (default: latest^)
+echo   --tag TAG           Image tag (default: v^<package-version^> from pyproject.toml^)
 echo   --name NAME         Image name (default: hl7validator^)
 echo   --platform PLATFORM Target platform (default: linux/amd64^)
 echo   --verbose, -v       Verbose output
 echo   --help, -h          Show this help message
 echo.
 echo Examples:
-echo   %~nx0                                    # Build with defaults
+echo   %~nx0                                    # Build with package version tag (e.g., v1.2.0^)
+echo   %~nx0 --tag latest                       # Build with 'latest' tag
 echo   %~nx0 --tag v1.0.0                       # Build with specific tag
 echo   %~nx0 --no-cache --push                  # Clean build and push
 echo   %~nx0 --platform linux/arm64             # Build for ARM64
@@ -90,14 +99,15 @@ echo.
 
 REM Display configuration
 echo Configuration:
-echo   Image Name:    %IMAGE_NAME%
-echo   Image Tag:     %IMAGE_TAG%
-echo   Full Image:    %IMAGE_NAME%:%IMAGE_TAG%
-echo   Platform:      %PLATFORM%
-echo   Dockerfile:    %DOCKERFILE_PATH%
-echo   Build Context: %BUILD_CONTEXT%
-echo   No Cache:      %NO_CACHE%
-echo   Push:          %PUSH%
+echo   Package Version: %PACKAGE_VERSION%
+echo   Image Name:      %IMAGE_NAME%
+echo   Image Tag:       %IMAGE_TAG%
+echo   Full Image:      %IMAGE_NAME%:%IMAGE_TAG%
+echo   Platform:        %PLATFORM%
+echo   Dockerfile:      %DOCKERFILE_PATH%
+echo   Build Context:   %BUILD_CONTEXT%
+echo   No Cache:        %NO_CACHE%
+echo   Push:            %PUSH%
 echo.
 
 REM Check prerequisites

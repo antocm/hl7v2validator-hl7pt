@@ -1,18 +1,13 @@
-from hl7apy.parser import parse_message, parse_field
-from hl7apy import parser, utils
-from hl7apy.exceptions import (
-    UnsupportedVersion,
-)
+from hl7apy.parser import parse_message, parse_field, parse_segment
+from hl7apy import parser
+from hl7apy.exceptions import UnsupportedVersion
 from hl7apy.core import Field
 from flask import abort
 from hl7validator import app
+import os
 import re
 import pandas as pd
-from hl7apy.parser import parse_segment
 from datetime import datetime
-import re
-
-import os
 
 classes_list = {}
 
@@ -181,9 +176,7 @@ def set_message_to_validate(msg):
 
 def read_report(report, details, error):
     with open(report, "r") as file:
-        # Read and print each line
         for line in file:
-            # print(line)
             level, message_level = line.split(":", 1)
             if level == "Error":
                 error = True
@@ -298,11 +291,10 @@ def from_hl7_to_df(msg):
                 get_field(child, num)
         else:
             try:
-                # print(hl7)
                 keyvalue = re.search("\S+\s\(.+\)", str(hl7)).group()
                 result2[str(num) + "_" + keyvalue] = hl7.value
             except:
-                result2[str(num) + "_UNKNOWN"] = hl7.value  ##unknown cases
+                result2[str(num) + "_UNKNOWN"] = hl7.value  # unknown cases
 
     try:
         m = parser.parse_message(msg.replace("\n", "\r"))
@@ -311,7 +303,6 @@ def from_hl7_to_df(msg):
 
     file = m.msh.msh_10.value + ".csv"
     for index, child in enumerate(m.children):
-        # print(child, index)
         get_field(child, index)
 
     df = pd.DataFrame.from_dict(result2, orient="index")
@@ -323,7 +314,6 @@ def highlight_message(msg, validation):
     hl7version = validation["hl7version"]
 
     setmsg = set_message_to_validate(msg)
-    # print(hl7version)
     highligmsg = ""
     for seg in setmsg.split("\r"):
         segment_id = seg[0:3]
@@ -337,7 +327,6 @@ def highlight_message(msg, validation):
         max_field = 0
         list_of_segments = []
         for s in p.children:
-            # print(s)
             if "Field of type None" not in str(s) and str(s) not in list_of_segments:
                 max_field += 1
                 list_of_segments.append(str(s))
@@ -383,7 +372,6 @@ def highlight_message(msg, validation):
                         )
 
                 if f.datatype == "DT" and f.value != "":  # check date format
-                    # print(f.value)
                     chk, _ = check_simple_format(f.value)
                     if not chk:
                         warningfield = True
@@ -397,10 +385,7 @@ def highlight_message(msg, validation):
                             }
                         )
                 field_name = f.long_name.replace("_", " ").lower().title()
-                # print(f.value)
-                # print(f.datatype)
                 f.validate()
-                # print(f, f.datatype, f.value, f.long_name, f.name, f.position)
             except Exception as e:
                 print("exp", e)
                 warningfield = True
@@ -408,12 +393,9 @@ def highlight_message(msg, validation):
 
             class_ = "note"
             if field != "":
-                # print(field != "", field)
                 counter += 1
 
                 if counter > max_field or warningfield:
-                    #  print(counter, max_field)
-                    #  print("error on", field)
                     class_ = "note error"
             if segment_id == "MSH" and idx == 0:
                 newseg += (
@@ -443,5 +425,4 @@ def highlight_message(msg, validation):
                 + "</span></span>"
             )
         highligmsg += '<p class="segment ' + segment_id + '">' + newseg + "</p>"
-    # print(highligmsg)
     return highligmsg, validation

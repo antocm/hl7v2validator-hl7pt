@@ -58,7 +58,6 @@ def home(lang=None):
             print(validation)
             if validation["hl7version"]:
                 parsed_message, validation = highlight_message(msg, validation)
-                #   print(parsed_message)
             details = sorted(validation["details"], key=lambda d: list(d.values())[0])
 
             return render_template(

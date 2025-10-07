@@ -28,7 +28,8 @@ echo "Binding to: $BIND_ADDRESS"
 echo "Log level: $LOG_LEVEL"
 
 # Start gunicorn with configurable settings
-exec gunicorn run:app \
+# Use the installed package module instead of run.py
+exec gunicorn "hl7validator:app" \
     --workers $WORKERS \
     --threads $THREADS \
     --bind $BIND_ADDRESS \

@@ -1,21 +1,21 @@
-from hl7validator import app
-import os
-import logging
-from logging.handlers import RotatingFileHandler
+#!/usr/bin/env python3
+"""
+Development entry point for HL7 Validator.
+
+DEPRECATED: This file is maintained for backward compatibility only.
+Please use 'python -m hl7validator' instead, which is the recommended way
+to run the application when installed as a wheel package.
+
+This wrapper simply calls the main entry point from __main__.py
+"""
+
+from hl7validator.__main__ import main
 
 if __name__ == "__main__":
-    app.run()
-if not app.debug:
-    if not os.path.exists("logs"):
-        os.mkdir("logs")
-    file_handler = RotatingFileHandler(
-        "logs/message_validation.log", maxBytes=1_000_000, backupCount=20
+    import warnings
+    warnings.warn(
+        "run.py is deprecated. Use 'python -m hl7validator' instead.",
+        DeprecationWarning,
+        stacklevel=2
     )
-    file_handler.setFormatter(
-        logging.Formatter(
-            "%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
-        )
-    )
-    file_handler.setLevel(logging.INFO)
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.INFO)
+    main()

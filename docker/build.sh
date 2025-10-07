@@ -16,9 +16,12 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# Extract version from pyproject.toml
+PACKAGE_VERSION=$(grep -E '^version = ' "$PROJECT_ROOT/pyproject.toml" | sed -E 's/version = "(.*)"/\1/')
+
 # Configuration
 IMAGE_NAME="${IMAGE_NAME:-hl7validator}"
-IMAGE_TAG="${IMAGE_TAG:-latest}"
+IMAGE_TAG="${IMAGE_TAG:-v$PACKAGE_VERSION}"  # Default to package version
 DOCKERFILE_PATH="$SCRIPT_DIR/Dockerfile"
 BUILD_CONTEXT="$PROJECT_ROOT"
 PLATFORM="${PLATFORM:-linux/amd64}"
@@ -60,7 +63,7 @@ while [[ $# -gt 0 ]]; do
             echo "Options:"
             echo "  --push              Push image to registry after build"
             echo "  --no-cache          Build without using cache"
-            echo "  --tag TAG           Image tag (default: latest)"
+            echo "  --tag TAG           Image tag (default: v<package-version> from pyproject.toml)"
             echo "  --name NAME         Image name (default: hl7validator)"
             echo "  --platform PLATFORM Target platform (default: linux/amd64)"
             echo "  --verbose, -v       Verbose output"
@@ -72,7 +75,8 @@ while [[ $# -gt 0 ]]; do
             echo "  PLATFORM            Override default platform"
             echo ""
             echo "Examples:"
-            echo "  $0                                    # Build with defaults"
+            echo "  $0                                    # Build with package version tag (e.g., v1.2.0)"
+            echo "  $0 --tag latest                       # Build with 'latest' tag"
             echo "  $0 --tag v1.0.0                       # Build with specific tag"
             echo "  $0 --no-cache --push                  # Clean build and push"
             echo "  $0 --platform linux/arm64             # Build for ARM64"
@@ -94,14 +98,15 @@ echo ""
 
 # Display configuration
 echo -e "${GREEN}Configuration:${NC}"
-echo "  Image Name:    $IMAGE_NAME"
-echo "  Image Tag:     $IMAGE_TAG"
-echo "  Full Image:    $IMAGE_NAME:$IMAGE_TAG"
-echo "  Platform:      $PLATFORM"
-echo "  Dockerfile:    $DOCKERFILE_PATH"
-echo "  Build Context: $BUILD_CONTEXT"
-echo "  No Cache:      $NO_CACHE"
-echo "  Push:          $PUSH"
+echo "  Package Version: $PACKAGE_VERSION"
+echo "  Image Name:      $IMAGE_NAME"
+echo "  Image Tag:       $IMAGE_TAG"
+echo "  Full Image:      $IMAGE_NAME:$IMAGE_TAG"
+echo "  Platform:        $PLATFORM"
+echo "  Dockerfile:      $DOCKERFILE_PATH"
+echo "  Build Context:   $BUILD_CONTEXT"
+echo "  No Cache:        $NO_CACHE"
+echo "  Push:            $PUSH"
 echo ""
 
 # Check prerequisites
