@@ -78,14 +78,39 @@
 
     {% if title %}
     <div id="validationTitle">
-        <h3>{{ _('Validation Status') }}: {{ title }}</h3>
+        <h3>{{ _('Validation') }}</h3>
+        <p><strong>{{ _('Status') }}:</strong> {{ title }}</p>
         {% if hl7version %}
         <p><strong>{{ _('Detected HL7 Version') }}:</strong> {{ hl7version }}</p>
         {% endif %}
     </div>
     {% endif %}
-    {% if tree %}
 
+    {% if result %}
+    <div id="validationResults">
+        <h3>{{ _('Report') }}</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">{{ _('Level') }}</th>
+                <th scope="col">{{ _('Message') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for foo in result %}
+            <tr >
+                <th scope="row">{{loop.index}}</th>
+                <td class="{{foo["level"]}}level">{{ foo["level"] }}</td>
+                <td>{{ foo["message"] }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if tree %}
         <p id="viewButtons">
           <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseTreeView" role="button" aria-expanded="false" aria-controls="collapseTreeView">
             {{ _('Click to view tree structure') }}
@@ -114,43 +139,11 @@
             <p>{{ _('For more information, see the specification') }} <a href="https://hl7-definition.caristix.com/v2/HL7v{{hl7version}}" target="_blank"> {{ _('of version') }} {{hl7version}} {{ _('here') }}</a>. {{ _('Or click on the segment identifier to view the specification') }}.</p>
             {% endif %}
             {{parsed|safe}}
-
           </div>
         </div>
-
       <br>
     {% endif %}
 
-
-    {% if result %}
-
-    <div id="validationResults">
-        <h3>{{ _('Validation Results') }}</h3>
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col">#</th>
-
-                <th scope="col">{{ _('Level') }}</th>
-                <th scope="col">{{ _('Message') }}</th>
-
-            </tr>
-            </thead>
-            <tbody>
-            {% for foo in result %}
-            <tr >
-                <th scope="row">{{loop.index}}</th>
-
-                <td class="{{foo["level"]}}level">{{ foo["level"] }}</td>
-                <td>{{ foo["message"] }}</td>
-
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    {% endif %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
 </body>

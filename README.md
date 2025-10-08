@@ -324,7 +324,7 @@ The validator provides an interactive tree view that displays the HL7 message in
 
 The validator automatically handles common ADT (Admission, Discharge, Transfer) message structure references including:
 - ADT^A01, A04, A07, A08, A10, A11, A12, A13, A14, A28, A31
-- Automatic MSH-9.3 message structure correction
+- Automatic MSH-9.3 message structure correction for versions <= 2.3
 
 ### Logging
 
