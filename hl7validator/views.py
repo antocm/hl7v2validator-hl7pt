@@ -10,7 +10,7 @@ from flask import (
 )
 from flask_babel import gettext, get_locale
 import os
-from hl7validator.api import hl7validatorapi, from_hl7_to_df, highlight_message
+from hl7validator.api import hl7validatorapi, from_hl7_to_df, highlight_message, build_tree_structure
 from hl7validator import app
 from hl7validator.__version__ import __version__
 
@@ -48,6 +48,7 @@ def home(lang=None):
         session['language'] = lang
 
     parsed_message = None
+    tree_structure = None
     if request.method == "POST":
         req = request.form.get("options")
         msg = request.form.get("msg")
@@ -58,16 +59,21 @@ def home(lang=None):
             print(validation)
             if validation["hl7version"]:
                 parsed_message, validation = highlight_message(msg, validation)
+                tree_structure, validation = build_tree_structure(msg, validation)
             details = sorted(validation["details"], key=lambda d: list(d.values())[0])
+
+            # Translate validation message
+            status_message = gettext(validation["message"])
 
             return render_template(
                 "hl7validatorhome.html",
-                title=validation["message"],
+                title=status_message,
                 msg=msg,
                 result=details,
                 version=VERSION,
                 hl7version=validation["hl7version"],
                 parsed=parsed_message,
+                tree=tree_structure,
             )
 
         elif req == "converter":

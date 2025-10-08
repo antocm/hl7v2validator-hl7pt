@@ -50,6 +50,9 @@ Visit http://localhost:5000
 ### Web Interface
 - **Interactive UI**: Web-based form for easy message input
 - **Visual Feedback**: Color-coded field highlighting with tooltips
+- **Tree Structure View**: Collapsible hierarchical display of segments, fields, components, and subcomponents
+- **Expand/Collapse Controls**: Buttons to expand or collapse all tree nodes at once
+- **Location Identification**: Shows precise element locations (e.g., PID-3.4.2)
 - **Documentation Links**: Clickable field references to Caristix HL7 documentation
 - **Real-time Results**: Instant validation results with detailed error messages
 
@@ -250,7 +253,7 @@ This runs with configurable workers and threads (default: 2 workers, 2 threads p
 
 ```
 hl7v2validator-hl7pt/
-├── hl7validator/               # Main application package
+├── hl7validator/              # Main application package
 │   ├── __init__.py            # Flask app initialization and Babel config
 │   ├── api.py                 # Core validation and conversion logic
 │   ├── views.py               # Route handlers (web & API endpoints)
@@ -302,6 +305,20 @@ hl7v2validator-hl7pt/
 5. Validates each segment, field, and data type
 6. Performs datetime format validation
 7. Returns detailed validation report
+
+### Tree Structure View
+
+The validator provides an interactive tree view that displays the HL7 message in a hierarchical structure:
+
+- **Segments**: Top-level nodes showing each segment (MSH, PID, PV1, etc.)
+- **Fields**: Child nodes showing field location (e.g., PID-3) with field name and value
+- **Components**: Sub-nodes for composite fields (e.g., PID-3.1) with component names
+- **Subcomponents**: Deepest level for complex data types (e.g., PID-3.1.2)
+- **Interactive Navigation**: Click any node to expand/collapse its children
+- **Bulk Controls**: "Expand All" and "Collapse All" buttons for easy navigation
+- **Specification Links**: 📖 icon on segments links to Caristix documentation
+
+**Location Format**: `SEGMENT-FIELD.COMPONENT.SUBCOMPONENT` (e.g., `PID-3.4.2`)
 
 ### Supported Message Types
 

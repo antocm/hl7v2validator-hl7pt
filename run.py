@@ -9,6 +9,7 @@ to run the application when installed as a wheel package.
 This wrapper simply calls the main entry point from __main__.py
 """
 
+from hl7validator import app
 from hl7validator.__main__ import main
 
 if __name__ == "__main__":

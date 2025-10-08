@@ -79,6 +79,34 @@ msgstr "da versão"
 msgid "Or click on the segment identifier to view the specification"
 msgstr "Ou Clica no identificador do segmento para ver a especificação"
 
+#: hl7validator/templates/hl7validatorhome.html:86
+msgid "Click to view tree structure"
+msgstr "Clique para ver estrutura em árvore"
+
+#: hl7validator/templates/hl7validatorhome.html:96
+msgid "Click on 📖 to view segment specification"
+msgstr "Clique em 📖 para ver especificação do segmento"
+
+#: hl7validator/templates/hl7validatorhome.html:99
+msgid "Expand All"
+msgstr "Expandir Tudo"
+
+#: hl7validator/templates/hl7validatorhome.html:100
+msgid "Collapse All"
+msgstr "Recolher Tudo"
+
+#: hl7validator/templates/hl7validatorhome.html:81
+msgid "Validation Status"
+msgstr "Estado da Validação"
+
+#: hl7validator/templates/hl7validatorhome.html:83
+msgid "Detected HL7 Version"
+msgstr "Versão HL7 Detectada"
+
+#: hl7validator/templates/hl7validatorhome.html:123
+msgid "Validation Results"
+msgstr "Resultados da Validação"
+
 #: hl7validator/templates/hl7validatorhome.html:110
 msgid "Level"
 msgstr "Nível"
@@ -86,3 +114,10 @@ msgstr "Nível"
 #: hl7validator/templates/hl7validatorhome.html:111
 msgid "Message"
 msgstr "Mensagem"
+
+# Validation status messages
+msgid "Valid"
+msgstr "Válido"
+
+msgid "Not valid"
+msgstr "Não válido"

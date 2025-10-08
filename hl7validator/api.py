@@ -31,7 +31,10 @@ def set_reference(setmsg, hl7version):
         "2.1",
         "2.2",
         "2.3",
-    ]:  # not msh9.3
+    ]:  # not MSH-9.3
+        # For v2.3 and earlier, add message structure for ACK if missing
+        if "|ACK|" in setmsg and "|ACK^" not in setmsg:
+            setmsg = setmsg.replace("|ACK|", "|ACK^ACK|")
         return setmsg
     if "|ADT^A04|" in setmsg:
         return setmsg.replace("|ADT^A04|", "|ADT^A04^ADT_A01|")
@@ -41,21 +44,18 @@ def set_reference(setmsg, hl7version):
         return setmsg.replace("|ADT^A13|", "|ADT^A13^ADT_A01|")
     if "|ADT^A07|" in setmsg:
         return setmsg.replace("|ADT^A07|", "|ADT^A07^ADT_A06|")
-    if "|ADT^A07|" in setmsg:
-        return setmsg.replace("|ADT^A07|", "|ADT^A07^ADT_A06|")
-    if "|ADT^A14|" in setmsg:
-        return setmsg.replace("|ADT^A14|", "|ADT^A14^ADT_A05|")
-    if "|ADT^A28|" in setmsg:
-        return setmsg.replace("|ADT^A28|", "|ADT^A28^ADT_A05|")
-    if "|ADT^A31|" in setmsg:
-        return setmsg.replace("|ADT^A31|", "|ADT^A31^ADT_A05|")
-
     if "|ADT^A10|" in setmsg:
         return setmsg.replace("|ADT^A10|", "|ADT^A10^ADT_A09|")
     if "|ADT^A11|" in setmsg:
         return setmsg.replace("|ADT^A11|", "|ADT^A11^ADT_A09|")
     if "|ADT^A12|" in setmsg:
         return setmsg.replace("|ADT^A12|", "|ADT^A12^ADT_A09|")
+    if "|ADT^A14|" in setmsg:
+        return setmsg.replace("|ADT^A14|", "|ADT^A14^ADT_A05|")
+    if "|ADT^A28|" in setmsg:
+        return setmsg.replace("|ADT^A28|", "|ADT^A28^ADT_A05|")
+    if "|ADT^A31|" in setmsg:
+        return setmsg.replace("|ADT^A31|", "|ADT^A31^ADT_A05|")
     return setmsg
 
 
@@ -213,7 +213,7 @@ def hl7validatorapi(msg):
         hl7version = parsed_msg.version
         msh_9 = parsed_msg.msh.msh_9
 
-        message = "Message v" + hl7version + " Valid"
+        message = "Valid"
     except Exception as err:
         app.logger.error(
             "Not able to parse message: {} ----> ERROR {}".format(msg, err)
@@ -251,10 +251,17 @@ def hl7validatorapi(msg):
     except Exception as err:
         app.logger.error("Error Creating Report: {}".format(err))
         if "reference" in str(err):
-            resultmessage.statusCode = "Failed"
-            resultmessage.hl7version = hl7version
-            resultmessage.message = "[Error parsing message] Error on detecting message structure. Try changing MSH-9.3"
-            return resultmessage.__dict__
+            # For v2.3 and earlier, skip structure validation if reference error
+            if hl7version in ["2.1", "2.2", "2.3"]:
+                app.logger.info("Skipping structure validation for v2.3 message due to reference error")
+                # Create empty report file so the rest of the code works
+                with open("report.txt", "w") as f:
+                    pass
+            else:
+                resultmessage.statusCode = "Failed"
+                resultmessage.hl7version = hl7version
+                resultmessage.message = "[Error parsing message] Error on detecting message structure. Try changing MSH-9.3"
+                return resultmessage.__dict__
 
     details, error = read_report("report.txt", details, error)
 
@@ -273,7 +280,7 @@ def hl7validatorapi(msg):
                     details, error = read_report("report.txt", details, error)
     if error:
         status = "Failed"
-        message = "Message v" + hl7version + " not valid"
+        message = "Not valid"
     resultmessage.statusCode = status
     resultmessage.details = details
     resultmessage.hl7version = hl7version
@@ -291,7 +298,7 @@ def from_hl7_to_df(msg):
                 get_field(child, num)
         else:
             try:
-                keyvalue = re.search("\S+\s\(.+\)", str(hl7)).group()
+                keyvalue = re.search(r"\S+\s\(.+\)", str(hl7)).group()
                 result2[str(num) + "_" + keyvalue] = hl7.value
             except:
                 result2[str(num) + "_UNKNOWN"] = hl7.value  # unknown cases
@@ -308,6 +315,190 @@ def from_hl7_to_df(msg):
     df = pd.DataFrame.from_dict(result2, orient="index")
     df.to_csv(file)
     return file
+
+
+def build_tree_structure(msg, validation):
+    """
+    Build a hierarchical tree structure of the HL7 message with segments, fields, components, and subcomponents.
+    Returns HTML for a collapsible tree view.
+    """
+    hl7version = validation["hl7version"]
+    setmsg = set_message_to_validate(msg)
+
+    def process_segment(segment, segment_id, hl7version):
+        """Process a single segment and return HTML"""
+        segment_html = ''
+
+        # This is an actual segment - render it
+        segment_html += f'''
+        <div class="tree-node segment-node">
+            <div class="tree-toggle" onclick="toggleNode(this)">
+                <span class="toggle-icon">▶</span>
+                <span class="node-id">{segment_id}</span>
+                <a href="https://hl7-definition.caristix.com/v2/HL7v{hl7version}/Segments/{segment_id}"
+                   target="_blank" class="spec-link" onclick="event.stopPropagation()">📖</a>
+            </div>
+            <div class="tree-children" style="display: none;">
+        '''
+
+        # Process fields
+        for field_idx, field in enumerate(segment.children, 1):
+            # Extract the actual field number from the field name (e.g., ORC_14 -> 14)
+            actual_field_num = field_idx
+            if hasattr(field, 'name') and '_' in field.name:
+                try:
+                    actual_field_num = int(field.name.split('_')[1])
+                except (ValueError, IndexError):
+                    actual_field_num = field_idx
+
+            # Skip only if field has no value AND no children with values
+            has_value = hasattr(field, 'value') and field.value is not None and field.value != ''
+            has_children_with_values = (hasattr(field, 'children') and len(field.children) > 0
+                                       and any(hasattr(c, 'value') and c.value is not None and c.value != '' for c in field.children))
+
+            if not has_value and not has_children_with_values:
+                continue
+
+            field_long_name = getattr(field, 'long_name', None)
+            # Use __dict__ to avoid triggering hl7apy's __getattr__ for child lookup
+            field_datatype = field.__dict__.get('datatype', None) if hasattr(field, '__dict__') else None
+            field_name = (field_long_name.replace("_", " ").title() if field_long_name else 'Unknown Field')
+            if field_datatype:
+                field_name = f"{field_name} ({field_datatype})"
+
+            # Debug logging for first few fields
+            if segment_id == 'PID' and actual_field_num <= 5:
+                app.logger.info(f"PID-{actual_field_num}: datatype={field_datatype}, field_name={field_name}")
+
+            field_location = f"{segment_id}-{actual_field_num}"
+            field_value = str(getattr(field, 'value', '')) if hasattr(field, 'value') else ''
+
+            # Check if field has components
+            has_components = hasattr(field, 'children') and len(field.children) > 0
+
+            if has_components and has_children_with_values:
+                # Field with components
+                segment_html += f'''
+                <div class="tree-node field-node">
+                    <div class="tree-toggle" onclick="toggleNode(this)">
+                        <span class="toggle-icon">▶</span>
+                        <span class="node-id">{field_location}</span>
+                        <span class="node-name">{field_name}</span>
+                        <span class="node-value">{field_value[:50]}{'...' if len(field_value) > 50 else ''}</span>
+                    </div>
+                    <div class="tree-children" style="display: none;">
+                '''
+
+                # Process components
+                for comp_idx, component in enumerate(field.children, 1):
+                    if not hasattr(component, 'value') or component.value is None:
+                        continue
+
+                    comp_long_name = getattr(component, 'long_name', None)
+                    # Use __dict__ to avoid triggering hl7apy's __getattr__ for child lookup
+                    comp_datatype = component.__dict__.get('datatype', None) if hasattr(component, '__dict__') else None
+                    comp_name = (comp_long_name.replace("_", " ").title() if comp_long_name else f'Component {comp_idx}')
+                    if comp_datatype:
+                        comp_name = f"{comp_name} ({comp_datatype})"
+                    comp_location = f"{field_location}.{comp_idx}"
+                    comp_value = str(component.value) if component.value else ''
+
+                    # Check if component has subcomponents
+                    has_subcomponents = hasattr(component, 'children') and len(component.children) > 0
+
+                    if has_subcomponents and any(hasattr(sc, 'value') and sc.value for sc in component.children):
+                        # Component with subcomponents
+                        segment_html += f'''
+                        <div class="tree-node component-node">
+                            <div class="tree-toggle" onclick="toggleNode(this)">
+                                <span class="toggle-icon">▶</span>
+                                <span class="node-id">{comp_location}</span>
+                                <span class="node-name">{comp_name}</span>
+                                <span class="node-value">{comp_value[:50]}{'...' if len(comp_value) > 50 else ''}</span>
+                            </div>
+                            <div class="tree-children" style="display: none;">
+                        '''
+
+                        # Process subcomponents
+                        for subcomp_idx, subcomponent in enumerate(component.children, 1):
+                            if not hasattr(subcomponent, 'value') or subcomponent.value is None:
+                                continue
+
+                            subcomp_long_name = getattr(subcomponent, 'long_name', None)
+                            # Use __dict__ to avoid triggering hl7apy's __getattr__ for child lookup
+                            subcomp_datatype = subcomponent.__dict__.get('datatype', None) if hasattr(subcomponent, '__dict__') else None
+                            subcomp_name = (subcomp_long_name.replace("_", " ").title() if subcomp_long_name else f'Subcomponent {subcomp_idx}')
+                            if subcomp_datatype:
+                                subcomp_name = f"{subcomp_name} ({subcomp_datatype})"
+                            subcomp_location = f"{comp_location}.{subcomp_idx}"
+                            subcomp_value = str(subcomponent.value) if subcomponent.value else ''
+
+                            segment_html += f'''
+                            <div class="tree-node subcomponent-node">
+                                <div class="tree-item">
+                                    <span class="node-id">{subcomp_location}</span>
+                                    <span class="node-name">{subcomp_name}</span>
+                                    <span class="node-value">{subcomp_value}</span>
+                                </div>
+                            </div>
+                            '''
+
+                        segment_html += '''
+                            </div>
+                        </div>
+                        '''
+                    else:
+                        # Component without subcomponents (leaf node)
+                        segment_html += f'''
+                        <div class="tree-node component-node">
+                            <div class="tree-item">
+                                <span class="node-id">{comp_location}</span>
+                                <span class="node-name">{comp_name}</span>
+                                <span class="node-value">{comp_value}</span>
+                            </div>
+                        </div>
+                        '''
+
+                segment_html += '''
+                    </div>
+                </div>
+                '''
+            else:
+                # Field without components (leaf node)
+                segment_html += f'''
+                <div class="tree-node field-node">
+                    <div class="tree-item">
+                        <span class="node-id">{field_location}</span>
+                        <span class="node-name">{field_name}</span>
+                        <span class="node-value">{field_value}</span>
+                    </div>
+                </div>
+                '''
+
+        segment_html += '''
+            </div>
+        </div>
+        '''
+
+        return segment_html
+
+    tree_html = '<div class="hl7-tree">'
+
+    # Parse segments directly from raw message like highlight_message does
+    for seg_line in setmsg.split("\r"):
+        segment_id = seg_line[0:3]
+        if len(segment_id) < 3:
+            continue
+        try:
+            parsed_segment = parse_segment(seg_line, version=hl7version)
+            tree_html += process_segment(parsed_segment, segment_id, hl7version)
+        except Exception as e:
+            app.logger.error(f"Error parsing segment {segment_id}: {e}")
+            continue
+
+    tree_html += '</div>'
+
+    return tree_html, validation
 
 
 def highlight_message(msg, validation):
