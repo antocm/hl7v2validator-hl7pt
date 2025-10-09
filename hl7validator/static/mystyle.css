@@ -9,12 +9,11 @@
   }
 
   .error{
-    color: red;
-font-weight: bold;
-text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-
-
-  
+    color: #dc3545;
+    font-weight: bold;
+    background-color: #ffe6e6;
+    padding: 2px 4px;
+    border-radius: 3px;
   }
 .segment{
   border: 1px solid #3c3c3c;
@@ -209,7 +208,7 @@ text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 .node-name {
   color: #333;
   font-style: italic;
-  min-width: 200px;
+  min-width: 350px;
 }
 
 .node-value {
@@ -219,6 +218,7 @@ text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
   border-radius: 3px;
   border: 1px solid #ddd;
   word-break: break-all;
+  margin-left: 10px;
 }
 
 .tree-children {

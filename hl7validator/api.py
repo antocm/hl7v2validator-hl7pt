@@ -2,6 +2,7 @@ from hl7apy.parser import parse_message, parse_field, parse_segment
 from hl7apy import parser
 from hl7apy.exceptions import UnsupportedVersion
 from hl7apy.core import Field
+from hl7apy.consts import VALIDATION_LEVEL
 from flask import abort
 from hl7validator import app
 import os
@@ -19,43 +20,103 @@ class resultMessage:
     statusCode: str
     message: str
     details: list
+    warnings: list
     resource: str
     hl7version: str
 
     def __init__(self):
         self.details = ""
+        self.warnings = []
 
 
 def set_reference(setmsg, hl7version):
-    if hl7version in [
-        "2.1",
-        "2.2",
-        "2.3",
-    ]:  # not MSH-9.3
-        # For v2.3 and earlier, add message structure for ACK if missing
-        if "|ACK|" in setmsg and "|ACK^" not in setmsg:
-            setmsg = setmsg.replace("|ACK|", "|ACK^ACK|")
+    """
+    Add MSH-9.3 (message structure) when missing for v2.3.1 and earlier.
+
+    hl7apy can automatically infer message structure as MESSAGE_CODE_TRIGGER_EVENT
+    (e.g., ADT^A01 -> ADT_A01), which works for most messages. However, some special
+    cases need explicit handling:
+    - ACK messages: structure is "ACK" (not "ACK_ACK")
+    - Some ADT variants share the same structure (e.g., A04/A08/A13 all use ADT_A01)
+
+    MSH-9.3 by HL7 standard:
+    - v2.3.1 and earlier: Optional
+    - v2.4 and later: Required
+
+    We only add MSH-9.3 for v2.3.1 and earlier where it's optional. For v2.4+,
+    it should already be present per the standard.
+    """
+    # Normalize ACK messages across all versions
+    # Handle incomplete ACK formats: |ACK| or |ACK^|
+    if "|ACK|" in setmsg and "|ACK^" not in setmsg:
+        setmsg = setmsg.replace("|ACK|", "|ACK^ACK|")
+    if "|ACK^|" in setmsg:
+        setmsg = setmsg.replace("|ACK^|", "|ACK^ACK|")
+
+    # Handle ACK messages missing MSH-9.3 for ALL versions
+    # ACK is special: structure is "ACK" not "ACK_ACK"
+    if "|ACK^ACK|" in setmsg and "|ACK^ACK^" not in setmsg:
+        setmsg = setmsg.replace("|ACK^ACK|", "|ACK^ACK^ACK|", 1)
+        app.logger.info(f"Auto-added MSH-9.3 for ACK message: ACK^ACK -> ACK^ACK^ACK")
         return setmsg
-    if "|ADT^A04|" in setmsg:
-        return setmsg.replace("|ADT^A04|", "|ADT^A04^ADT_A01|")
-    if "|ADT^A08|" in setmsg:
-        return setmsg.replace("|ADT^A08|", "|ADT^A08^ADT_A01|")
-    if "|ADT^A13|" in setmsg:
-        return setmsg.replace("|ADT^A13|", "|ADT^A13^ADT_A01|")
-    if "|ADT^A07|" in setmsg:
-        return setmsg.replace("|ADT^A07|", "|ADT^A07^ADT_A06|")
-    if "|ADT^A10|" in setmsg:
-        return setmsg.replace("|ADT^A10|", "|ADT^A10^ADT_A09|")
-    if "|ADT^A11|" in setmsg:
-        return setmsg.replace("|ADT^A11|", "|ADT^A11^ADT_A09|")
-    if "|ADT^A12|" in setmsg:
-        return setmsg.replace("|ADT^A12|", "|ADT^A12^ADT_A09|")
-    if "|ADT^A14|" in setmsg:
-        return setmsg.replace("|ADT^A14|", "|ADT^A14^ADT_A05|")
-    if "|ADT^A28|" in setmsg:
-        return setmsg.replace("|ADT^A28|", "|ADT^A28^ADT_A05|")
-    if "|ADT^A31|" in setmsg:
-        return setmsg.replace("|ADT^A31|", "|ADT^A31^ADT_A05|")
+
+    # Only auto-add MSH-9.3 for v2.3.1 and earlier (where it's optional per HL7 standard)
+    # For v2.4+, MSH-9.3 is required, so missing it is an error that should be reported
+    if hl7version not in ["2.1", "2.2", "2.3", "2.3.1"]:
+        return setmsg
+
+    # Extract MSH-9 to check if MSH-9.3 is missing
+    try:
+        msh_segment = setmsg.split('\r')[0]
+        fields = msh_segment.split('|')
+
+        if len(fields) <= 9:
+            return setmsg
+
+        msh_9 = fields[8]
+        components = msh_9.split('^')
+
+        # Only process if we have exactly 2 components (message_code^trigger_event)
+        if len(components) != 2:
+            return setmsg
+
+        message_code = components[0].strip()
+        trigger_event = components[1].strip()
+
+        if not message_code or not trigger_event:
+            return setmsg
+
+        # Special cases that don't follow MESSAGE_CODE_TRIGGER_EVENT pattern
+        # For everything else, hl7apy's automatic inference works fine
+        special_structures = {
+            # ACK is just "ACK", not "ACK_ACK"
+            ("ACK", "ACK"): "ACK",
+            # ADT messages that share structures
+            ("ADT", "A04"): "ADT_A01",
+            ("ADT", "A08"): "ADT_A01",
+            ("ADT", "A13"): "ADT_A01",
+            ("ADT", "A07"): "ADT_A06",
+            ("ADT", "A10"): "ADT_A09",
+            ("ADT", "A11"): "ADT_A09",
+            ("ADT", "A12"): "ADT_A09",
+            ("ADT", "A14"): "ADT_A05",
+            ("ADT", "A28"): "ADT_A05",
+            ("ADT", "A31"): "ADT_A05",
+        }
+
+        structure = special_structures.get((message_code, trigger_event))
+
+        # If it's a special case, add the structure
+        if structure:
+            old_msh9 = f"|{message_code}^{trigger_event}|"
+            new_msh9 = f"|{message_code}^{trigger_event}^{structure}|"
+            setmsg = setmsg.replace(old_msh9, new_msh9, 1)
+            app.logger.info(f"Auto-added MSH-9.3: {message_code}^{trigger_event} -> {message_code}^{trigger_event}^{structure}")
+        # Otherwise, let hl7apy infer it automatically (no need to add MSH-9.3)
+
+    except Exception as e:
+        app.logger.error(f"Error in set_reference: {e}")
+
     return setmsg
 
 
@@ -180,7 +241,7 @@ def read_report(report, details, error):
             level, message_level = line.split(":", 1)
             if level == "Error":
                 error = True
-            print(level, message_level)
+            app.logger.debug(f"Validation {level}: {message_level.strip()}")
             if {
                 "level": level,
                 "message": message_level,
@@ -196,8 +257,23 @@ def read_report(report, details, error):
     return details, error
 
 
-def hl7validatorapi(msg):
+def hl7validatorapi(msg, validation_level='tolerant'):
+    """
+    Validate an HL7 v2 message.
+
+    :param msg: The HL7 message to validate
+    :param validation_level: Validation level - 'strict' or 'tolerant' (default)
+    :return: Dictionary with validation results
+    """
     app.logger.info("message received in hl7validatorapi: {}".format(msg))
+    app.logger.info(f"validation level: {validation_level}")
+
+    # Convert validation level string to hl7apy constant
+    if validation_level and validation_level.lower() == 'strict':
+        val_level = VALIDATION_LEVEL.STRICT
+    else:
+        val_level = VALIDATION_LEVEL.TOLERANT
+
     resultmessage = resultMessage()
     custom_chars = define_custom_chars(msg)
     details = []
@@ -209,7 +285,7 @@ def hl7validatorapi(msg):
     error = False
     setmsg = set_message_to_validate(msg)
     try:
-        parsed_msg = parse_message(setmsg)
+        parsed_msg = parse_message(setmsg, validation_level=val_level)
         hl7version = parsed_msg.version
         msh_9 = parsed_msg.msh.msh_9
 
@@ -218,7 +294,6 @@ def hl7validatorapi(msg):
         app.logger.error(
             "Not able to parse message: {} ----> ERROR {}".format(msg, err)
         )
-        print(err)
         resultmessage.statusCode = "Failed"
         resultmessage.hl7version = hl7version
         resultmessage.message = "[Error parsing message] " + str(err)
@@ -275,8 +350,12 @@ def hl7validatorapi(msg):
             try:
                 child.validate(report_file="report.txt")
             except Exception as e:
-                print("seg exp", e)
-                if "reference" not in str(e):
+                error_msg = str(e)
+                # Log more descriptive error messages
+                if "reference" in error_msg:
+                    app.logger.warning(f"Validation skipped for segment {seg.name} child: missing reference structure")
+                else:
+                    app.logger.warning(f"Error validating segment {seg.name} child: {error_msg}")
                     details, error = read_report("report.txt", details, error)
     if error:
         status = "Failed"
@@ -325,6 +404,41 @@ def build_tree_structure(msg, validation):
     hl7version = validation["hl7version"]
     setmsg = set_message_to_validate(msg)
 
+    # Extract field locations with errors from validation details
+    error_fields = set()
+    if "details" in validation and validation["details"]:
+        for detail in validation["details"]:
+            if detail.get("level") in ["Error", "Warning"]:
+                message = detail.get("message", "")
+                # Parse error messages to extract field locations
+                # Examples: "Invalid datetime format on field PID.PID_7"
+                #           "PID.PID_5.2: max_length is 50 and length is 51"
+                import re
+                # Pattern 1: "on field SEG.SEG_N" or "field SEG.SEG_N"
+                match = re.search(r'field\s+([A-Z]{3})\.([A-Z]{3}_\d+)', message)
+                if match:
+                    segment = match.group(1)
+                    field_name = match.group(2)
+                    # Extract field number from field name (e.g., PID_7 -> 7)
+                    field_num = field_name.split('_')[1]
+                    error_fields.add(f"{segment}-{field_num}")
+                else:
+                    # Pattern 2: "SEG.SEG_N.C" or "SEG.SEG_N.C.S"
+                    match = re.search(r'^([A-Z]{3})\.([A-Z]{3}_\d+)(\.(\d+))?(\.(\d+))?:', message)
+                    if match:
+                        segment = match.group(1)
+                        field_name = match.group(2)
+                        component = match.group(4)
+                        subcomponent = match.group(6)
+                        field_num = field_name.split('_')[1]
+
+                        location = f"{segment}-{field_num}"
+                        if component:
+                            location += f".{component}"
+                        if subcomponent:
+                            location += f".{subcomponent}"
+                        error_fields.add(location)
+
     def process_segment(segment, segment_id, hl7version):
         """Process a single segment and return HTML"""
         segment_html = ''
@@ -360,8 +474,8 @@ def build_tree_structure(msg, validation):
                 continue
 
             field_long_name = getattr(field, 'long_name', None)
-            # Use __dict__ to avoid triggering hl7apy's __getattr__ for child lookup
-            field_datatype = field.__dict__.get('datatype', None) if hasattr(field, '__dict__') else None
+            # Get datatype directly from the field object
+            field_datatype = getattr(field, 'datatype', None)
             field_name = (field_long_name.replace("_", " ").title() if field_long_name else 'Unknown Field')
             if field_datatype:
                 field_name = f"{field_name} ({field_datatype})"
@@ -373,6 +487,10 @@ def build_tree_structure(msg, validation):
             field_location = f"{segment_id}-{actual_field_num}"
             field_value = str(getattr(field, 'value', '')) if hasattr(field, 'value') else ''
 
+            # Check if this field has an error
+            field_has_error = field_location in error_fields
+            error_class = ' error' if field_has_error else ''
+
             # Check if field has components
             has_components = hasattr(field, 'children') and len(field.children) > 0
 
@@ -382,9 +500,9 @@ def build_tree_structure(msg, validation):
                 <div class="tree-node field-node">
                     <div class="tree-toggle" onclick="toggleNode(this)">
                         <span class="toggle-icon">▶</span>
-                        <span class="node-id">{field_location}</span>
-                        <span class="node-name">{field_name}</span>
-                        <span class="node-value">{field_value[:50]}{'...' if len(field_value) > 50 else ''}</span>
+                        <span class="node-id{error_class}">{field_location}</span>
+                        <span class="node-name{error_class}">{field_name}</span>
+                        <span class="node-value{error_class}">{field_value[:50]}{'...' if len(field_value) > 50 else ''}</span>
                     </div>
                     <div class="tree-children" style="display: none;">
                 '''
@@ -395,13 +513,17 @@ def build_tree_structure(msg, validation):
                         continue
 
                     comp_long_name = getattr(component, 'long_name', None)
-                    # Use __dict__ to avoid triggering hl7apy's __getattr__ for child lookup
-                    comp_datatype = component.__dict__.get('datatype', None) if hasattr(component, '__dict__') else None
+                    # Get datatype directly from the component object
+                    comp_datatype = getattr(component, 'datatype', None)
                     comp_name = (comp_long_name.replace("_", " ").title() if comp_long_name else f'Component {comp_idx}')
                     if comp_datatype:
                         comp_name = f"{comp_name} ({comp_datatype})"
                     comp_location = f"{field_location}.{comp_idx}"
                     comp_value = str(component.value) if component.value else ''
+
+                    # Check if this component has an error
+                    comp_has_error = comp_location in error_fields
+                    comp_error_class = ' error' if comp_has_error else ''
 
                     # Check if component has subcomponents
                     has_subcomponents = hasattr(component, 'children') and len(component.children) > 0
@@ -412,9 +534,9 @@ def build_tree_structure(msg, validation):
                         <div class="tree-node component-node">
                             <div class="tree-toggle" onclick="toggleNode(this)">
                                 <span class="toggle-icon">▶</span>
-                                <span class="node-id">{comp_location}</span>
-                                <span class="node-name">{comp_name}</span>
-                                <span class="node-value">{comp_value[:50]}{'...' if len(comp_value) > 50 else ''}</span>
+                                <span class="node-id{comp_error_class}">{comp_location}</span>
+                                <span class="node-name{comp_error_class}">{comp_name}</span>
+                                <span class="node-value{comp_error_class}">{comp_value[:50]}{'...' if len(comp_value) > 50 else ''}</span>
                             </div>
                             <div class="tree-children" style="display: none;">
                         '''
@@ -425,20 +547,24 @@ def build_tree_structure(msg, validation):
                                 continue
 
                             subcomp_long_name = getattr(subcomponent, 'long_name', None)
-                            # Use __dict__ to avoid triggering hl7apy's __getattr__ for child lookup
-                            subcomp_datatype = subcomponent.__dict__.get('datatype', None) if hasattr(subcomponent, '__dict__') else None
+                            # Get datatype directly from the subcomponent object
+                            subcomp_datatype = getattr(subcomponent, 'datatype', None)
                             subcomp_name = (subcomp_long_name.replace("_", " ").title() if subcomp_long_name else f'Subcomponent {subcomp_idx}')
                             if subcomp_datatype:
                                 subcomp_name = f"{subcomp_name} ({subcomp_datatype})"
                             subcomp_location = f"{comp_location}.{subcomp_idx}"
                             subcomp_value = str(subcomponent.value) if subcomponent.value else ''
 
+                            # Check if this subcomponent has an error
+                            subcomp_has_error = subcomp_location in error_fields
+                            subcomp_error_class = ' error' if subcomp_has_error else ''
+
                             segment_html += f'''
                             <div class="tree-node subcomponent-node">
                                 <div class="tree-item">
-                                    <span class="node-id">{subcomp_location}</span>
-                                    <span class="node-name">{subcomp_name}</span>
-                                    <span class="node-value">{subcomp_value}</span>
+                                    <span class="node-id{subcomp_error_class}">{subcomp_location}</span>
+                                    <span class="node-name{subcomp_error_class}">{subcomp_name}</span>
+                                    <span class="node-value{subcomp_error_class}">{subcomp_value}</span>
                                 </div>
                             </div>
                             '''
@@ -452,9 +578,9 @@ def build_tree_structure(msg, validation):
                         segment_html += f'''
                         <div class="tree-node component-node">
                             <div class="tree-item">
-                                <span class="node-id">{comp_location}</span>
-                                <span class="node-name">{comp_name}</span>
-                                <span class="node-value">{comp_value}</span>
+                                <span class="node-id{comp_error_class}">{comp_location}</span>
+                                <span class="node-name{comp_error_class}">{comp_name}</span>
+                                <span class="node-value{comp_error_class}">{comp_value}</span>
                             </div>
                         </div>
                         '''
@@ -468,9 +594,9 @@ def build_tree_structure(msg, validation):
                 segment_html += f'''
                 <div class="tree-node field-node">
                     <div class="tree-item">
-                        <span class="node-id">{field_location}</span>
-                        <span class="node-name">{field_name}</span>
-                        <span class="node-value">{field_value}</span>
+                        <span class="node-id{error_class}">{field_location}</span>
+                        <span class="node-name{error_class}">{field_name}</span>
+                        <span class="node-value{error_class}">{field_value}</span>
                     </div>
                 </div>
                 '''
@@ -540,14 +666,13 @@ def highlight_message(msg, validation):
             else:
                 add = 1
             try:
-                f = Field(segment_id + "_" + str(idx + add), version=hl7version)
+                field_identifier = segment_id + "_" + str(idx + add)
+                f = Field(field_identifier, version=hl7version)
                 f.value = field
-                if f.value == "123":
-                    print(f.datatype)
+
                 if (
                     f.datatype == "DTM" or f.datatype == "TS"
                 ) and f.value != "":  # check date format
-                    print(f.value)
                     chk, _ = check_format(f.value)
                     if not chk:
                         warningfield = True
@@ -577,8 +702,18 @@ def highlight_message(msg, validation):
                         )
                 field_name = f.long_name.replace("_", " ").lower().title()
                 f.validate()
+            except AttributeError as e:
+                # Field object is None or doesn't have expected attributes
+                app.logger.warning(f"Could not validate field {segment_id}-{idx + add}: field may not be defined in HL7 v{hl7version} specification or has unexpected structure")
+                warningfield = True
+                counter -= 1
             except Exception as e:
-                print("exp", e)
+                # Other validation errors (invalid field name, etc.)
+                error_msg = str(e)
+                if "Invalid name" in error_msg or "not found" in error_msg.lower():
+                    app.logger.warning(f"Field {segment_id}-{idx + add} not found in HL7 v{hl7version} specification: {error_msg}")
+                else:
+                    app.logger.warning(f"Error validating field {segment_id}-{idx + add}: {error_msg}")
                 warningfield = True
                 counter -= 1
 

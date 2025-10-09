@@ -52,10 +52,11 @@ def home(lang=None):
     if request.method == "POST":
         req = request.form.get("options")
         msg = request.form.get("msg")
+        validation_level = request.form.get("validation_level", "tolerant")
         if not msg:
             return render_template("hl7validatorhome.html", version=VERSION)
         elif req == "hl7v2":
-            validation = hl7validatorapi(request.form.get("msg"))
+            validation = hl7validatorapi(request.form.get("msg"), validation_level=validation_level)
             print(validation)
             if validation["hl7version"]:
                 parsed_message, validation = highlight_message(msg, validation)
@@ -91,8 +92,9 @@ def hl7v2validatorapi():
     """
 
     data = request.json["data"]
+    validation_level = request.json.get("validation_level", "tolerant")
 
-    return jsonify(hl7validatorapi(data))
+    return jsonify(hl7validatorapi(data, validation_level=validation_level))
 
 
 @app.route("/api/hl7/v1/convert/", methods=["POST"])

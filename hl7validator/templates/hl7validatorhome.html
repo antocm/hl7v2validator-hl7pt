@@ -49,10 +49,10 @@
     <form method="POST" role="form">
         <div class="form-group">
             <label for="exampleFormControlTextarea1">
-                <h3>{{ _('Use the form below to validate an HL7 v2 message or convert to CSV') }}</h3>
+                <h3>{{ _('Validate an HL7 version 2 message or convert to CSV') }}</h3>
             </label>
 
-            <div class="row align-items-center">
+            <div class="row align-items-center mb-3">
                 <div class="col-lg-2 ">
                     <label class="radio-inline">
                         <input type="radio" name="options" value="hl7v2" checked> {{ _('HL7 V2') }}
@@ -63,6 +63,14 @@
                     <label class="radio-inline">
                         <input type="radio" name="options" value="converter">{{ _('Convert HL7 V2 to CSV') }}
                     </label>
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="validation_level">{{ _('Validation Level') }}:</label>
+                    <select name="validation_level" id="validation_level" class="form-select form-select-sm">
+                        <option value="tolerant" selected>{{ _('Tolerant') }}</option>
+                        <option value="strict">{{ _('Strict') }}</option>
+                    </select>
                 </div>
             </div>
             <textarea class="form-control" id="exampleFormControlTextarea1" name="msg" rows="7">{{ msg }}</textarea>
@@ -88,7 +96,7 @@
 
     {% if result %}
     <div id="validationResults">
-        <h3>{{ _('Report') }}</h3>
+        <h4>{{ _('Report') }}</h4>
         <table class="table">
             <thead>
             <tr>

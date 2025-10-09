@@ -22,5 +22,13 @@
       properties:
         data:
           type: "string"
+          description: "The HL7v2 message to validate"
+        validation_level:
+          type: "string"
+          description: "Validation level: 'strict' or 'tolerant' (default)"
+          enum:
+            - "strict"
+            - "tolerant"
+          default: "tolerant"
 
 
