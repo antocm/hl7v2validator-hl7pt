@@ -1,123 +1,182 @@
 # Portuguese translations for HL7 Validator.
 # Copyright (C) 2025 HL7 Portugal
-# This file is distributed under the same license as the HL7 Validator project.
+# This file is distributed under the same license as the HL7 Validator
+# project.
 # FIRST AUTHOR <geral@hl7.pt>, 2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: HL7 Validator 1.0.0\n"
 "Report-Msgid-Bugs-To: tech@hl7.pt\n"
-"POT-Creation-Date: 2025-10-02 12:00+0000\n"
-"PO-Revision-Date: 2025-10-02 12:00+0000\n"
+"POT-Creation-Date: 2025-10-09 22:25+0100\n"
+"PO-Revision-Date: 2025-10-09 22:27+0100\n"
 "Last-Translator: HL7 Portugal <geral@hl7.pt>\n"
-"Language: pt\n"
 "Language-Team: Portuguese\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.17.0\n"
+"X-Generator: Poedit 3.6\n"
 
+#: build/lib/hl7validator/views.py:66 hl7validator/views.py:67
+msgid "message"
+msgstr "mensagem"
+
+#: build/lib/hl7validator/templates/hl7validatorhome.html:6
 #: hl7validator/templates/hl7validatorhome.html:6
 msgid "HL7 Validator"
 msgstr "Validador HL7"
 
+#: build/lib/hl7validator/templates/hl7validatorhome.html:39
 #: hl7validator/templates/hl7validatorhome.html:39
 msgid "HL7 V2 Validator"
 msgstr "Validador HL7 V2"
 
+#: build/lib/hl7validator/templates/hl7validatorhome.html:39
 #: hl7validator/templates/hl7validatorhome.html:39
 msgid "Version"
 msgstr "Versão"
 
-#: hl7validator/templates/hl7validatorhome.html:52
+#: build/lib/hl7validator/templates/hl7validatorhome.html:52
 msgid "Use the form below to validate an HL7 v2 message or convert to CSV"
-msgstr "Use o formulário abaixo para validar uma mensagem HL7 v2 ou converter para CSV"
+msgstr ""
+"Use o formulário abaixo para validar uma mensagem HL7 v2 ou converter "
+"para CSV"
 
+#: build/lib/hl7validator/templates/hl7validatorhome.html:58
 #: hl7validator/templates/hl7validatorhome.html:58
 msgid "HL7 V2"
 msgstr "HL7 V2"
 
+#: build/lib/hl7validator/templates/hl7validatorhome.html:64
 #: hl7validator/templates/hl7validatorhome.html:64
 msgid "Convert HL7 V2 to CSV"
 msgstr "Converter HL7 V2 para CSV"
 
-#: hl7validator/templates/hl7validatorhome.html:70
+#: build/lib/hl7validator/templates/hl7validatorhome.html:70
+#: hl7validator/templates/hl7validatorhome.html:78
 msgid "Submit"
 msgstr "Submeter"
 
-#: hl7validator/templates/hl7validatorhome.html:71
+#: build/lib/hl7validator/templates/hl7validatorhome.html:71
+#: hl7validator/templates/hl7validatorhome.html:79
 msgid "Clear"
 msgstr "Apagar"
 
-#: hl7validator/templates/hl7validatorhome.html:72
+#: build/lib/hl7validator/templates/hl7validatorhome.html:72
+#: hl7validator/templates/hl7validatorhome.html:80
 msgid "Use as API? See"
 msgstr "Usar como API? ver"
 
-#: hl7validator/templates/hl7validatorhome.html:72
-#: hl7validator/templates/hl7validatorhome.html:92
+#: build/lib/hl7validator/templates/hl7validatorhome.html:72
+#: build/lib/hl7validator/templates/hl7validatorhome.html:130
+#: build/lib/hl7validator/templates/hl7validatorhome.html:143
+#: hl7validator/templates/hl7validatorhome.html:80
+#: hl7validator/templates/hl7validatorhome.html:134
+#: hl7validator/templates/hl7validatorhome.html:147
 msgid "here"
 msgstr "aqui"
 
-#: hl7validator/templates/hl7validatorhome.html:74
+#: build/lib/hl7validator/templates/hl7validatorhome.html:74
+#: hl7validator/templates/hl7validatorhome.html:82
 msgid "Detected an error? Please send email to"
 msgstr "Algum erro detetado? Por favor enviar email para"
 
-#: hl7validator/templates/hl7validatorhome.html:86
-msgid "Click to view structured message"
-msgstr "Clicar para ver mensagem estruturada"
+#: build/lib/hl7validator/templates/hl7validatorhome.html:81
+#: hl7validator/templates/hl7validatorhome.html:89
+msgid "Validation"
+msgstr "Validação"
 
+#: build/lib/hl7validator/templates/hl7validatorhome.html:82
+#: hl7validator/templates/hl7validatorhome.html:90
+msgid "Status"
+msgstr "Estado"
+
+#: build/lib/hl7validator/templates/hl7validatorhome.html:84
 #: hl7validator/templates/hl7validatorhome.html:92
-msgid "For more information, see the specification"
-msgstr "Para mais informações, ver a especificação"
-
-#: hl7validator/templates/hl7validatorhome.html:92
-msgid "of version"
-msgstr "da versão"
-
-#: hl7validator/templates/hl7validatorhome.html:92
-msgid "Or click on the segment identifier to view the specification"
-msgstr "Ou Clica no identificador do segmento para ver a especificação"
-
-#: hl7validator/templates/hl7validatorhome.html:86
-msgid "Click to view tree structure"
-msgstr "Clique para ver estrutura em árvore"
-
-#: hl7validator/templates/hl7validatorhome.html:96
-msgid "Click on 📖 to view segment specification"
-msgstr "Clique em 📖 para ver especificação do segmento"
-
-#: hl7validator/templates/hl7validatorhome.html:99
-msgid "Expand All"
-msgstr "Expandir Tudo"
-
-#: hl7validator/templates/hl7validatorhome.html:100
-msgid "Collapse All"
-msgstr "Recolher Tudo"
-
-#: hl7validator/templates/hl7validatorhome.html:81
-msgid "Validation Status"
-msgstr "Estado da Validação"
-
-#: hl7validator/templates/hl7validatorhome.html:83
 msgid "Detected HL7 Version"
 msgstr "Versão HL7 Detectada"
 
-#: hl7validator/templates/hl7validatorhome.html:123
-msgid "Validation Results"
-msgstr "Resultados da Validação"
+#: build/lib/hl7validator/templates/hl7validatorhome.html:91
+#: hl7validator/templates/hl7validatorhome.html:99
+msgid "Report"
+msgstr "Relatório"
 
-#: hl7validator/templates/hl7validatorhome.html:110
+#: build/lib/hl7validator/templates/hl7validatorhome.html:97
+#: hl7validator/templates/hl7validatorhome.html:104
 msgid "Level"
 msgstr "Nível"
 
-#: hl7validator/templates/hl7validatorhome.html:111
+#: build/lib/hl7validator/templates/hl7validatorhome.html:98
+#: hl7validator/templates/hl7validatorhome.html:105
 msgid "Message"
 msgstr "Mensagem"
 
-# Validation status messages
-msgid "Valid"
-msgstr "Válido"
+#: build/lib/hl7validator/templates/hl7validatorhome.html:120
+#: hl7validator/templates/hl7validatorhome.html:124
+msgid "Click to view tree structure"
+msgstr "Clique para ver estrutura em árvore"
 
-msgid "Not valid"
-msgstr "Não válido"
+#: build/lib/hl7validator/templates/hl7validatorhome.html:123
+#: hl7validator/templates/hl7validatorhome.html:127
+msgid "Click to view structured message"
+msgstr "Clicar para ver mensagem estruturada"
+
+#: build/lib/hl7validator/templates/hl7validatorhome.html:130
+#: build/lib/hl7validator/templates/hl7validatorhome.html:143
+#: hl7validator/templates/hl7validatorhome.html:134
+#: hl7validator/templates/hl7validatorhome.html:147
+msgid "For more information, see the specification"
+msgstr "Para mais informações, ver a especificação"
+
+#: build/lib/hl7validator/templates/hl7validatorhome.html:130
+#: build/lib/hl7validator/templates/hl7validatorhome.html:143
+#: hl7validator/templates/hl7validatorhome.html:134
+#: hl7validator/templates/hl7validatorhome.html:147
+msgid "of version"
+msgstr "da versão"
+
+#: build/lib/hl7validator/templates/hl7validatorhome.html:130
+#: hl7validator/templates/hl7validatorhome.html:134
+msgid "Click on 📖 to view segment specification"
+msgstr "Clique em 📖 para ver especificação do segmento"
+
+#: build/lib/hl7validator/templates/hl7validatorhome.html:133
+#: hl7validator/templates/hl7validatorhome.html:137
+msgid "Expand All"
+msgstr "Expandir Tudo"
+
+#: build/lib/hl7validator/templates/hl7validatorhome.html:134
+#: hl7validator/templates/hl7validatorhome.html:138
+msgid "Collapse All"
+msgstr "Recolher Tudo"
+
+#: build/lib/hl7validator/templates/hl7validatorhome.html:143
+#: hl7validator/templates/hl7validatorhome.html:147
+msgid "Or click on the segment identifier to view the specification"
+msgstr "Ou Clica no identificador do segmento para ver a especificação"
+
+#: hl7validator/templates/hl7validatorhome.html:52
+msgid "Validate an HL7 version 2 message or convert to CSV"
+msgstr "Validar uma mensagem HL7 versão 2 ou converter para CSV"
+
+#: hl7validator/templates/hl7validatorhome.html:69
+msgid "Validation Level"
+msgstr "Nível de Validação"
+
+#: hl7validator/templates/hl7validatorhome.html:71
+msgid "Tolerant"
+msgstr "Tolerante"
+
+#: hl7validator/templates/hl7validatorhome.html:72
+msgid "Strict"
+msgstr "Estrito"
+
+# Validation status messages
+#~ msgid "Valid"
+#~ msgstr "Válido"
+
+#~ msgid "Not valid"
+#~ msgstr "Não válido"
