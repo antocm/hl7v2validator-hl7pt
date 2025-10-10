@@ -12,7 +12,7 @@ A comprehensive HL7 Version 2 message validation and conversion web service deve
 git clone https://github.com/hl7pt/hl7v2validator-hl7pt.git
 cd hl7v2validator-hl7pt/docker
 ./build.sh
-docker run -p 80:80 hl7validator:v1.2.0
+docker run -p 80:80 hl7validator:v2.0.0
 ```
 Visit http://localhost
 
@@ -105,8 +105,8 @@ The build scripts automatically:
 cd docker
 chmod +x build.sh
 ./build.sh
-# The script automatically builds with version tag from pyproject.toml (e.g., v1.2.0)
-docker run -p 80:80 hl7validator:v1.2.0
+# The script automatically builds with version tag from pyproject.toml (e.g., v2.0.0)
+docker run -p 80:80 hl7validator:v2.0.0
 
 # Or build and tag as 'latest'
 ./build.sh --tag latest
@@ -117,7 +117,7 @@ docker run -p 80:80 hl7validator:latest
 ```cmd
 cd docker
 build.bat
-docker run -p 80:80 hl7validator:v1.2.0
+docker run -p 80:80 hl7validator:v2.0.0
 ```
 
 #### Using Docker Compose
@@ -176,7 +176,7 @@ source .venv/bin/activate  # Linux/Mac
 # .venv\Scripts\activate   # Windows
 
 # Install from wheel
-pip install dist/hl7validator_hl7pt-1.2.0-py3-none-any.whl
+pip install dist/hl7validator_hl7pt-2.0.0-py3-none-any.whl
 
 # Run the application
 hl7validator
@@ -346,7 +346,7 @@ python3 -m pip install --upgrade build
 # Build the wheel package
 python3 -m build --wheel
 
-# The wheel will be created in dist/hl7validator_hl7pt-1.2.0-py3-none-any.whl
+# The wheel will be created in dist/hl7validator_hl7pt-2.0.0-py3-none-any.whl
 ```
 
 ### Complete Build and Run Examples
@@ -369,7 +369,7 @@ python3 -m build --wheel
 # Install in a clean environment
 python3 -m venv fresh_env
 source fresh_env/bin/activate
-pip install dist/hl7validator_hl7pt-1.2.0-py3-none-any.whl
+pip install dist/hl7validator_hl7pt-2.0.0-py3-none-any.whl
 
 # Run the application
 hl7validator
@@ -419,7 +419,7 @@ pybabel compile -d hl7validator/translations
 **Example 5: Production Deployment with Gunicorn**
 ```bash
 # Install from wheel
-pip install dist/hl7validator_hl7pt-1.2.0-py3-none-any.whl
+pip install dist/hl7validator_hl7pt-2.0.0-py3-none-any.whl
 
 # Run with production settings
 ./docker/gunicorn.sh
@@ -443,7 +443,7 @@ See [test.http](test.http) for example API requests. Use REST client extensions 
 
 **Live Instance**: https://version2.hl7.pt
 
-**Version**: 1.2.0
+**Version**: 2.0.0
 
 ### Building for Production
 
@@ -555,7 +555,7 @@ See [I18N_GUIDE.md](I18N_GUIDE.md) for:
 | **Build wheel package** | `python3 -m build --wheel` |
 | **Build Docker image** | `cd docker && ./build.sh` |
 | **Build Docker (latest tag)** | `cd docker && ./build.sh --tag latest` |
-| **Run Docker container** | `docker run -p 80:80 hl7validator:v1.2.0` |
+| **Run Docker container** | `docker run -p 80:80 hl7validator:v2.0.0` |
 | **Extract translation strings** | `pybabel extract -F babel.cfg -o messages.pot .` |
 | **Update translations** | `pybabel update -i messages.pot -d hl7validator/translations` |
 | **Compile translations** | `pybabel compile -d hl7validator/translations` |

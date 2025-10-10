@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hl7validator-hl7pt"
-version = "1.2.0"
+version = "2.0.0"
 description = "HL7 Version 2 Message Validator and Converter by HL7 Portugal"
 readme = "README.md"
 authors = [

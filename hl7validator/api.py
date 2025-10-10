@@ -277,6 +277,7 @@ def hl7validatorapi(msg, validation_level='tolerant'):
     resultmessage = resultMessage()
     custom_chars = define_custom_chars(msg)
     details = []
+    warnings = []  # Collect validation warnings
     status = "Success"
     msh_18 = "ASCII"
     hl7version = None
@@ -353,15 +354,20 @@ def hl7validatorapi(msg, validation_level='tolerant'):
                 error_msg = str(e)
                 # Log more descriptive error messages
                 if "reference" in error_msg:
-                    app.logger.warning(f"Validation skipped for segment {seg.name} child: missing reference structure")
+                    warning_msg = f"Validation skipped for segment {seg.name} child: missing reference structure"
+                    app.logger.warning(warning_msg)
+                    warnings.append(warning_msg)
                 else:
-                    app.logger.warning(f"Error validating segment {seg.name} child: {error_msg}")
+                    warning_msg = f"Error validating segment {seg.name} child: {error_msg}"
+                    app.logger.warning(warning_msg)
+                    warnings.append(warning_msg)
                     details, error = read_report("report.txt", details, error)
     if error:
         status = "Failed"
         message = "Not valid"
     resultmessage.statusCode = status
     resultmessage.details = details
+    resultmessage.warnings = warnings
     resultmessage.hl7version = hl7version
     resultmessage.message = message
 
@@ -704,16 +710,24 @@ def highlight_message(msg, validation):
                 f.validate()
             except AttributeError as e:
                 # Field object is None or doesn't have expected attributes
-                app.logger.warning(f"Could not validate field {segment_id}-{idx + add}: field may not be defined in HL7 v{hl7version} specification or has unexpected structure")
+                warning_msg = f"Could not validate field {segment_id}-{idx + add}: field may not be defined in HL7 v{hl7version} specification or has unexpected structure"
+                app.logger.warning(warning_msg)
+                if "warnings" not in validation:
+                    validation["warnings"] = []
+                validation["warnings"].append(warning_msg)
                 warningfield = True
                 counter -= 1
             except Exception as e:
                 # Other validation errors (invalid field name, etc.)
                 error_msg = str(e)
                 if "Invalid name" in error_msg or "not found" in error_msg.lower():
-                    app.logger.warning(f"Field {segment_id}-{idx + add} not found in HL7 v{hl7version} specification: {error_msg}")
+                    warning_msg = f"Field {segment_id}-{idx + add} not found in HL7 v{hl7version} specification: {error_msg}"
                 else:
-                    app.logger.warning(f"Error validating field {segment_id}-{idx + add}: {error_msg}")
+                    warning_msg = f"Error validating field {segment_id}-{idx + add}: {error_msg}"
+                app.logger.warning(warning_msg)
+                if "warnings" not in validation:
+                    validation["warnings"] = []
+                validation["warnings"].append(warning_msg)
                 warningfield = True
                 counter -= 1
 

@@ -8,19 +8,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HL7 Validator 1.0.0\n"
 "Report-Msgid-Bugs-To: tech@hl7.pt\n"
-"POT-Creation-Date: 2025-10-09 22:25+0100\n"
+"POT-Creation-Date: 2025-10-10 19:35+0100\n"
 "PO-Revision-Date: 2025-10-09 22:27+0100\n"
 "Last-Translator: HL7 Portugal <geral@hl7.pt>\n"
-"Language-Team: Portuguese\n"
 "Language: pt\n"
+"Language-Team: Portuguese\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.17.0\n"
-"X-Generator: Poedit 3.6\n"
 
-#: build/lib/hl7validator/views.py:66 hl7validator/views.py:67
+#: build/lib/hl7validator/views.py:66 hl7validator/views.py:68
 msgid "message"
 msgstr "mensagem"
 
@@ -74,8 +73,8 @@ msgstr "Usar como API? ver"
 #: build/lib/hl7validator/templates/hl7validatorhome.html:130
 #: build/lib/hl7validator/templates/hl7validatorhome.html:143
 #: hl7validator/templates/hl7validatorhome.html:80
-#: hl7validator/templates/hl7validatorhome.html:134
-#: hl7validator/templates/hl7validatorhome.html:147
+#: hl7validator/templates/hl7validatorhome.html:150
+#: hl7validator/templates/hl7validatorhome.html:163
 msgid "here"
 msgstr "aqui"
 
@@ -115,46 +114,46 @@ msgid "Message"
 msgstr "Mensagem"
 
 #: build/lib/hl7validator/templates/hl7validatorhome.html:120
-#: hl7validator/templates/hl7validatorhome.html:124
+#: hl7validator/templates/hl7validatorhome.html:140
 msgid "Click to view tree structure"
 msgstr "Clique para ver estrutura em árvore"
 
 #: build/lib/hl7validator/templates/hl7validatorhome.html:123
-#: hl7validator/templates/hl7validatorhome.html:127
+#: hl7validator/templates/hl7validatorhome.html:143
 msgid "Click to view structured message"
 msgstr "Clicar para ver mensagem estruturada"
 
 #: build/lib/hl7validator/templates/hl7validatorhome.html:130
 #: build/lib/hl7validator/templates/hl7validatorhome.html:143
-#: hl7validator/templates/hl7validatorhome.html:134
-#: hl7validator/templates/hl7validatorhome.html:147
+#: hl7validator/templates/hl7validatorhome.html:150
+#: hl7validator/templates/hl7validatorhome.html:163
 msgid "For more information, see the specification"
 msgstr "Para mais informações, ver a especificação"
 
 #: build/lib/hl7validator/templates/hl7validatorhome.html:130
 #: build/lib/hl7validator/templates/hl7validatorhome.html:143
-#: hl7validator/templates/hl7validatorhome.html:134
-#: hl7validator/templates/hl7validatorhome.html:147
+#: hl7validator/templates/hl7validatorhome.html:150
+#: hl7validator/templates/hl7validatorhome.html:163
 msgid "of version"
 msgstr "da versão"
 
 #: build/lib/hl7validator/templates/hl7validatorhome.html:130
-#: hl7validator/templates/hl7validatorhome.html:134
+#: hl7validator/templates/hl7validatorhome.html:150
 msgid "Click on 📖 to view segment specification"
 msgstr "Clique em 📖 para ver especificação do segmento"
 
 #: build/lib/hl7validator/templates/hl7validatorhome.html:133
-#: hl7validator/templates/hl7validatorhome.html:137
+#: hl7validator/templates/hl7validatorhome.html:153
 msgid "Expand All"
 msgstr "Expandir Tudo"
 
 #: build/lib/hl7validator/templates/hl7validatorhome.html:134
-#: hl7validator/templates/hl7validatorhome.html:138
+#: hl7validator/templates/hl7validatorhome.html:154
 msgid "Collapse All"
 msgstr "Recolher Tudo"
 
 #: build/lib/hl7validator/templates/hl7validatorhome.html:143
-#: hl7validator/templates/hl7validatorhome.html:147
+#: hl7validator/templates/hl7validatorhome.html:163
 msgid "Or click on the segment identifier to view the specification"
 msgstr "Ou Clica no identificador do segmento para ver a especificação"
 
@@ -174,9 +173,22 @@ msgstr "Tolerante"
 msgid "Strict"
 msgstr "Estrito"
 
+#: hl7validator/templates/hl7validatorhome.html:124
+msgid "Warnings"
+msgstr "Avisos"
+
+#: hl7validator/templates/hl7validatorhome.html:126
+msgid ""
+"These are non-critical validation warnings that may indicate fields not "
+"defined in the HL7 specification version or other minor issues"
+msgstr ""
+"Estes são avisos de validação não críticos que podem indicar campos não "
+"definidos na versão da especificação HL7 ou outros problemas menores"
+
 # Validation status messages
 #~ msgid "Valid"
 #~ msgstr "Válido"
 
 #~ msgid "Not valid"
 #~ msgstr "Não válido"
+

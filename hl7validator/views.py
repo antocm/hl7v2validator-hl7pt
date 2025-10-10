@@ -62,6 +62,7 @@ def home(lang=None):
                 parsed_message, validation = highlight_message(msg, validation)
                 tree_structure, validation = build_tree_structure(msg, validation)
             details = sorted(validation["details"], key=lambda d: list(d.values())[0])
+            warnings = validation.get("warnings", [])
 
             # Translate validation message
             status_message = gettext(validation["message"])
@@ -71,6 +72,7 @@ def home(lang=None):
                 title=status_message,
                 msg=msg,
                 result=details,
+                warnings=warnings,
                 version=VERSION,
                 hl7version=validation["hl7version"],
                 parsed=parsed_message,
