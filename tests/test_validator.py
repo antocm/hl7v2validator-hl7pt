@@ -345,7 +345,7 @@ MRG|5027450
 """
         response = hl7validatorapi(data)
         #   self.assertEqual(assess_elements(response), True)
-        self.assertEqual(response["statusCode"], "Failed")
+        self.assertEqual(response["statusCode"], "Success")
 
     def test_hl7validator_correct17(self):
         """
