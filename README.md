@@ -36,6 +36,7 @@ Visit http://localhost:5000
 
 ### Message Validation
 - **Multi-version Support**: Validates HL7v2 messages from versions 2.1 through 2.8
+- **Validation Levels**: STRICT and TOLERANT modes for different compliance requirements (see [VALIDATION_LEVELS.md](VALIDATION_LEVELS.md))
 - **Comprehensive Validation**: Checks message structure, segments, fields, and data types
 - **Datetime Validation**: Validates DTM, TS, and DT data type formats
 - **Encoding Verification**: Verifies ASCII encoding when specified in MSH-18

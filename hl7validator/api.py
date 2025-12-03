@@ -320,7 +320,7 @@ def hl7validatorapi(msg, validation_level='tolerant'):
 
     try:
         ### if i used parsed_msg returns error on report creation for some messages....dont know why
-        parse_message(set_reference(setmsg, hl7version)).validate(
+        parse_message(set_reference(setmsg, hl7version), validation_level=val_level).validate(
             report_file="report.txt"
         )
 
@@ -341,7 +341,7 @@ def hl7validatorapi(msg, validation_level='tolerant'):
 
     details, error = read_report("report.txt", details, error)
 
-    for seg in parse_message(setmsg).children:
+    for seg in parse_message(setmsg, validation_level=val_level).children:
         try:
             seg.validate(report_file="report.txt")
 
